@@ -2,7 +2,9 @@
 
 An interactive Active Directory attack reference and mind map built from real penetration testing engagements, HTB labs, Vulnlab, TryHackMe, CWL, and CPTS exam preparation.
 
----
+---<img width="1872" height="942" alt="ad_mindmap_view" src="https://github.com/user-attachments/assets/59ee4919-0a55-4abc-9777-9abf3c6cda0a" />
+
+<img width="1519" height="930" alt="ad_arsenal_view" src="https://github.com/user-attachments/assets/62ecbff4-1dac-405d-a977-4407c9c684f0" />
 
 ## Overview
 
